@@ -168,7 +168,7 @@ class CreateFrequentlyModal extends React.Component {
             titleText: {
                 fontSize: 20,
                 borderColor: this.props.colors["textColor"],
-                color: "white",
+                color: this.props.theme==='Focus'?this.props.colors['backColor']:'white',
                 fontFamily: this.props.fontFamily,
                 paddingBottom: 5,
                 paddingTop: 10,
@@ -177,7 +177,7 @@ class CreateFrequentlyModal extends React.Component {
                 fontSize: 15,
                 fontFamily: this.props.fontFamily,
                 paddingTop: 15,
-                color: "white"
+                color:this.props.theme==='Focus'?this.props.colors['backColor']:'white'
             },
             textInput: {
                 width: 0.85 * Dimensions.get('window').width,

@@ -215,11 +215,11 @@ class ManageFrequentliesScreen extends React.Component {
 
 
                     <View >
-                        <CreateFrequentlyModal colors={this.props.screenProps.colors} modalVisible={this.state.createFrequentlyModalVisible} closeModal={() => { this.setState({ createFrequentlyModalVisible: false }) }} mode={this.props.screenProps.mode} fontFamily={this.props.screenProps["fontFamily"]} updateFrequentlies={() => this.props.screenProps.updateFrequentlies()} />
+                        <CreateFrequentlyModal theme = {this.props.screenProps.theme} colors={this.props.screenProps.colors} modalVisible={this.state.createFrequentlyModalVisible} closeModal={() => { this.setState({ createFrequentlyModalVisible: false }) }} mode={this.props.screenProps.mode} fontFamily={this.props.screenProps["fontFamily"]} updateFrequentlies={() => this.props.screenProps.updateFrequentlies()} />
 
-                        <FrequentlyInfoModal colors={this.props.screenProps.colors} modalVisible={this.state.frequentlyInfoModalVisible} closeModal={() => { this.setState({ frequentlyInfoModalVisible: false }) }} fontFamily={this.props.screenProps["fontFamily"]} />
+                        <FrequentlyInfoModal theme = {this.props.screenProps.theme}  colors={this.props.screenProps.colors} modalVisible={this.state.frequentlyInfoModalVisible} closeModal={() => { this.setState({ frequentlyInfoModalVisible: false }) }} mode={this.props.screenProps.mode}fontFamily={this.props.screenProps["fontFamily"]} />
 
-                        <EditFrequentlyModal colors={this.props.screenProps.colors} modalVisible={this.state.editFrequentlyModalVisible} closeModal={() => { this.setState({ editFrequentlyModalVisible: false }) }} fontFamily={this.props.screenProps["fontFamily"]} mode={this.props.screenProps.mode} selectedFrequently = {this.state.selectedFrequently} updateFrequentlies={() => this.props.screenProps.updateFrequentlies()}/>
+                        <EditFrequentlyModal theme = {this.props.screenProps.theme}  colors={this.props.screenProps.colors} modalVisible={this.state.editFrequentlyModalVisible} closeModal={() => { this.setState({ editFrequentlyModalVisible: false }) }} fontFamily={this.props.screenProps["fontFamily"]} mode={this.props.screenProps.mode} selectedFrequently = {this.state.selectedFrequently} updateFrequentlies={() => this.props.screenProps.updateFrequentlies()}/>
                         <View style={styles.textInputView}>
 
                             <FontAwesome name={'search'} size={0.1 * Dimensions.get('screen').width > 30 ? 30 : 0.1 * Dimensions.get('screen').width} color={this.props.screenProps.colors["textColor"]} />

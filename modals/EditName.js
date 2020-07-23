@@ -48,7 +48,7 @@ class EditNameModal extends React.Component {
             },
             titleText: {
                 fontSize: 0.025 * Dimensions.get('screen').height,
-                color: "white",
+                color: this.props.theme==='Focus'?this.props.colors['backColor']:'white',
                 fontFamily: this.props.fontFamily,
                 paddingTop: (1 / 80.0) * Dimensions.get('screen').height > 7 ? 7 : (1 / 80.0) * Dimensions.get('screen').height,
             },
@@ -72,7 +72,7 @@ class EditNameModal extends React.Component {
                 fontSize: 0.018 * Dimensions.get('screen').height,
                 fontFamily: this.props.fontFamily,
                 paddingTop: 0.015 * Dimensions.get('screen').height > 10 ? 10 : 0.015 * Dimensions.get('screen').height,
-                color: "white"
+                color: this.props.theme==='Focus'?this.props.colors['backColor']:'white'
             },
             titleView: {
                 flexDirection: "row",

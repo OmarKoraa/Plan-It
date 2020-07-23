@@ -121,7 +121,7 @@ class ChangePasswordModal extends React.Component {
             },
             text: {
                 fontSize: 0.025 * Dimensions.get('screen').height > 25 ? 25 : 0.025 * Dimensions.get('screen').height,
-                color: "white",
+                color: this.props.theme==='Focus'?this.props.colors['backColor']:'white',
                 fontFamily: this.props.fontFamily,
                 paddingTop: (1 / 80.0) * Dimensions.get('screen').height > 6 ? 6 : (1 / 80.0) * Dimensions.get('screen').height,
             },
@@ -137,7 +137,7 @@ class ChangePasswordModal extends React.Component {
                 fontSize: 0.018 * Dimensions.get('screen').height,
                 fontFamily: this.props.fontFamily,
                 paddingTop: 0.015 * Dimensions.get('screen').height > 10 ? 10 : 0.015 * Dimensions.get('screen').height,
-                color: "white"
+                color:  this.props.theme==='Focus'?this.props.colors['backColor']:'white'
             },
             titleView: {
                 flexDirection: "row",
