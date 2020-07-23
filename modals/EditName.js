@@ -1,8 +1,7 @@
 import React from "react";
-import { View, TextInput, StyleSheet, Dimensions, Animated, Keyboard, TouchableWithoutFeedback, AsyncStorage, Text, ImageBackground, Image, Modal } from 'react-native'
+import { View, TextInput, StyleSheet, Dimensions, Animated, Keyboard, TouchableWithoutFeedback, AsyncStorage, Text, ImageBackground, Image, Modal, TouchableHighlight } from 'react-native'
 import { Button, Icon, Card, Divider } from 'react-native-elements'
 import { FontAwesome } from '@expo/vector-icons'
-import { TouchableOpacity } from "react-native-gesture-handler";
 
 
 class EditNameModal extends React.Component {
@@ -51,11 +50,11 @@ class EditNameModal extends React.Component {
                 fontSize: 0.025 * Dimensions.get('screen').height,
                 color: "white",
                 fontFamily: this.props.fontFamily,
-                paddingTop: (1/80.0)*Dimensions.get('screen').height>7?7:(1/80.0)*Dimensions.get('screen').height,
+                paddingTop: (1 / 80.0) * Dimensions.get('screen').height > 7 ? 7 : (1 / 80.0) * Dimensions.get('screen').height,
             },
             TextInputStyle: {
                 textAlign: 'center',
-                height: 0.0625 * Dimensions.get('screen').height>50?50:0.0625 * Dimensions.get('screen').height,
+                height: 0.0625 * Dimensions.get('screen').height > 50 ? 50 : 0.0625 * Dimensions.get('screen').height,
                 borderRadius: 20,
                 borderWidth: 2,
                 borderColor: this.props.colors["textColor"],
@@ -63,20 +62,19 @@ class EditNameModal extends React.Component {
                 backgroundColor: '#00000000',
                 alignSelf: 'center',
                 color: this.props.colors["textColor"],
-                fontSize: 0.02875 * Dimensions.get('screen').height>23?23:0.02875 * Dimensions.get('screen').height,
+                fontSize: 0.02875 * Dimensions.get('screen').height > 23 ? 23 : 0.02875 * Dimensions.get('screen').height,
                 borderWidth: 3,
                 borderColor: this.props.colors["textColor"],
                 fontFamily: this.props.fontFamily
 
             },
             smallText: {
-                fontSize: 0.018 * Dimensions.get('screen').height ,
+                fontSize: 0.018 * Dimensions.get('screen').height,
                 fontFamily: this.props.fontFamily,
-                paddingTop: 0.015 * Dimensions.get('screen').height>10?10:0.015 * Dimensions.get('screen').height,
+                paddingTop: 0.015 * Dimensions.get('screen').height > 10 ? 10 : 0.015 * Dimensions.get('screen').height,
                 color: "white"
             },
             titleView: {
-                marginTop: 0.23 * Dimensions.get('screen').height,
                 flexDirection: "row",
                 justifyContent: 'space-around',
                 width: 0.9 * Dimensions.get('screen').width,
@@ -84,8 +82,8 @@ class EditNameModal extends React.Component {
                 backgroundColor: this.props.colors["themeColor"],
                 borderTopLeftRadius: 25,
                 borderTopRightRadius: 25,
-                marginBottom: - 0.025 * Dimensions.get('screen').height<-20?-20: - 0.025 * Dimensions.get('screen').height,
-                height: 0.0625 * Dimensions.get('screen').height>50?50:0.0625 * Dimensions.get('screen').height,
+                marginBottom: - 0.025 * Dimensions.get('screen').height < -20 ? -20 : - 0.025 * Dimensions.get('screen').height,
+                height: 0.0625 * Dimensions.get('screen').height > 50 ? 50 : 0.0625 * Dimensions.get('screen').height,
                 borderWidth: 1,
                 borderBottomWidth: 0,
                 borderColor: this.props.colors["textColor"],
@@ -93,32 +91,39 @@ class EditNameModal extends React.Component {
         })
 
         return (
+
             <Modal
                 animationType="slide"
                 transparent={true}
                 visible={this.props.modalVisible}
-                onRequestClose={() => {
-                    Alert.alert("Modal has been closed.");
-                }}
+
             >
-                <TouchableOpacity style={{ backgroundColor: 'transparent', height: Dimensions.get('screen').height}} onPress={() => this.props.closeModal()} activeOpacity={1}>
+                <TouchableHighlight activeOpacity={1} underlayColor={'#00000000'} style={{ backgroundColor: 'transparent', height: 0.22 * Dimensions.get('screen').height }} onPress={() => this.props.closeModal()} >
+                    <View />
+                </TouchableHighlight>
 
-                    <TouchableOpacity activeOpacity={1}>
 
 
-                        <View style={styles.titleView}>
-                            <TouchableOpacity onPress={this.props.closeModal}><Text style={styles.smallText}>Close</Text></TouchableOpacity>
-                            <Text style={styles.titleText}>Change Name</Text>
-                            <TouchableOpacity onPress={this.save}><Text style={styles.smallText}>Save</Text></TouchableOpacity>
-                        </View>
-                        <Card containerStyle={styles.card}>
+                <View style={styles.titleView}>
+                    <TouchableHighlight onPress={this.props.closeModal} activeOpacity={1} underlayColor={'#00000000'} ><Text style={styles.smallText}>Close</Text></TouchableHighlight>
+                    <Text style={styles.titleText}>Change Name</Text>
+                    <TouchableHighlight onPress={this.save} activeOpacity={1} underlayColor={'#00000000'} ><Text style={styles.smallText}>Save</Text></TouchableHighlight>
+                </View>
+                <Card containerStyle={styles.card}>
 
-                            <TextInput style={styles.TextInputStyle} placeholder='Your Name ;)' value={this.state.userName} onChangeText={text => { this.setState({ userName: text }) }}  keyboardAppearance={this.props.mode} placeholderTextColor={this.props.colors["textColor"]==='black'?'#00000088':'#ffffff88'}  ></TextInput>
-                        </Card>
+                    <TextInput style={styles.TextInputStyle} placeholder='Your Name ;)' value={this.state.userName} onChangeText={text => { this.setState({ userName: text }) }} keyboardAppearance={this.props.mode} placeholderTextColor={this.props.colors["textColor"] + '88'} autoFocus={true}></TextInput>
+                </Card>
 
-                    </TouchableOpacity>
-                </TouchableOpacity>
-            </Modal>)
+
+                <TouchableHighlight style={{ backgroundColor: 'transparent', height: 0.5 * Dimensions.get('screen').height }} onPress={() => this.props.closeModal()} activeOpacity={1} underlayColor={'#00000000'}  >
+                    <View />
+                </TouchableHighlight>
+
+
+
+            </Modal>
+
+        )
     }
 }
 

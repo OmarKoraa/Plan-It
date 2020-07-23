@@ -1,8 +1,7 @@
 import React from "react";
-import { View, TextInput, StyleSheet, Dimensions, Picker, Animated, Keyboard, TouchableWithoutFeedback, AsyncStorage, Text, ImageBackground, Image, Modal, ScrollView } from 'react-native'
+import { View, TextInput, StyleSheet, Dimensions, Picker, Animated, Keyboard, TouchableWithoutFeedback, AsyncStorage, Text, ImageBackground, Image, Modal, ScrollView,TouchableHighlight, Platform } from 'react-native'
 import { Button, Icon, Card, Divider } from 'react-native-elements'
 import { FontAwesome } from '@expo/vector-icons'
-import { TouchableOpacity } from "react-native-gesture-handler";
 
 class FrequentlyInfoModal extends React.Component{
     constructor(props){
@@ -18,7 +17,7 @@ class FrequentlyInfoModal extends React.Component{
                 borderColor: this.props.colors["textColor"],
                 borderWidth: 2,
                 marginTop: 0.05 * Dimensions.get('screen').height,
-                height: 0.9 * Dimensions.get('screen').height,
+                height: Platform.OS==='ios'? 0.9 * Dimensions.get('screen').height:0.85 * Dimensions.get('screen').height,
                
                 borderRadius:20
                 
@@ -47,6 +46,12 @@ class FrequentlyInfoModal extends React.Component{
                 
                 
                 
+            },
+            buttonView:{
+                position:"absolute",
+                left:0.3*Dimensions.get('screen').width,
+                top:0.8 * Dimensions.get('screen').height
+                
             }
         })
         return(
@@ -54,17 +59,18 @@ class FrequentlyInfoModal extends React.Component{
             animationType="slide"
             transparent={true}
             visible={this.props.modalVisible}
-            onRequestClose={() => {
-                Alert.alert("Modal has been closed.");
-            }}
+            
         >
             <Card containerStyle={styles.card}>
-                <ScrollView>
+                <ScrollView contentContainerStyle={{marginTop:Platform.OS==='ios'?0:20}}>
 
                 <Text style={styles.titleText}>What is a Frequently?</Text>
                 <Text style={styles.text} >{"A frequently is repeated task you do on a fixed basis, in another words a routine. You create your freqeuntly and we will handle showing it in the right day for you.\n\nFrequentlies come in different flavors:\n\n   - Daily: A taks you repeat everyday (E.g: Drink your morning coffee).\n   - Weekly: A task you repeat every week on the same day (E.g: Take the dog to the park).\n   - Monthly: A repeated task once a month (E.g: Weigh yourself for the gym).\n   - Yearly: A task for a single day a year (Suitable for birthdays and your wedding anniversary ;) )."} </Text>
                 </ScrollView>
-                <TouchableOpacity onPress={()=>this.props.closeModal()} style={styles.button}><Text style={styles.text}>Got it!</Text></TouchableOpacity>
+                <View style={Platform.OS==='ios'?styles.buttonView:null}>
+
+                <TouchableHighlight onPress={()=>this.props.closeModal()} style={styles.button} activeOpacity={1} underlayColor={'#00000000'}><Text style={styles.text}>Got it!</Text></TouchableHighlight>
+                </View>
             </Card>
         </Modal>
         )

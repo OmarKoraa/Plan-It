@@ -78,7 +78,8 @@ const Home = createAppContainer(
         labelStyle:{
           position:'absolute',
           fontSize:(1.0/80)*Dimensions.get('screen').height,
-          bottom:0.047*Dimensions.get('screen').height
+          bottom:0.047*Dimensions.get('screen').height,
+          alignSelf:'center'
         },
         tabStyle: {
           //borderColor: '#ffffff2f',

@@ -2,22 +2,22 @@ export const categories = [
     
     {
         name:'Work',
-        color:'yellow'
+        colors:['yellow','orange']
     },
     {
         name:'Sport',
-        color:'blue',
+        colors:['blue','navy'],
     },
     {
         name:'School',
-        color:'red'
+        colors:['red','#dd0000']
     },
     {
         name:'Travel',
-        color:'green'
+        colors:['green','#00dd00']
     },
     {
         name:'Home',
-        color:'cyan'
+        colors:['cyan','lightblue']
     }
 ]

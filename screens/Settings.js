@@ -8,6 +8,8 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import EditNameModal from '../modals/EditName'
 import ChangePasswordModal from '../modals/ChangePassword'
 import ChangeModeModal from '../modals/ChangeMode'
+import { LinearGradient } from 'expo-linear-gradient';
+
 
 
 
@@ -39,7 +41,7 @@ class SettingsScreen extends React.Component {
                 flex: 1,
                 width: Dimensions.get('screen').width,
                 height: (8/9.0)*Dimensions.get('screen').height,
-                backgroundColor: this.props.screenProps.colors['backColor']
+                backgroundColor: 'transparent'
             },
             title: {
                 paddingTop: 0.01 * Dimensions.get('screen').height,
@@ -60,13 +62,12 @@ class SettingsScreen extends React.Component {
             },
             text: {
                 fontSize: 0.025*Dimensions.get('screen').height>23?23:0.025*Dimensions.get('screen').height,
-                borderColor: 'white',
+                borderColor: '#ffffff',
                 textAlign: "left",
                 color: this.props.screenProps.colors["textColor"],
                 fontFamily: this.props.screenProps.fontFamily
             },
             card: {
-
                 backgroundColor: this.props.screenProps.colors["greyishBackColor"],
                 color: this.props.screenProps.colors["greyishBackColor"],
                 borderRadius: 25,
@@ -76,7 +77,6 @@ class SettingsScreen extends React.Component {
                 flex: 1,
                 flexDirection: 'row',
                 justifyContent: 'space-between',
-
             },
             titleCard: {
                 backgroundColor: '#00000000',
@@ -90,12 +90,21 @@ class SettingsScreen extends React.Component {
                 position: 'absolute',
                 width: Dimensions.get('screen').width,
                 bottom: 0,
+            },
+            version:{
+                marginTop:0.025*Dimensions.get('screen').height>23?23:0.025*Dimensions.get('screen').height,
+                color:this.props.screenProps.colors["textColor"],
+                fontFamily: this.props.screenProps.fontFamily,
+                alignSelf:'center',
+                opacity:0.6
             }
         })
         //console.log(Dimensions.get('screen').width)
 
         return (
             <View style={styles.fullscreen}>
+                <LinearGradient colors={[this.props.screenProps.colors['backColor'],this.props.screenProps.colors['themeColor']]} style={{height:(8/9.0)*Dimensions.get('screen').height,}}>
+
                 <Card containerStyle={styles.titleCard}>
                     <Text style={styles.title}>Settings</Text>
                 </Card>
@@ -155,9 +164,11 @@ class SettingsScreen extends React.Component {
 
 
 
-                        {/*  */}
+                        {/* Version */}
+                        <Text style={styles.version}>Version: 1.0 Beta</Text>
                     </ScrollView>
                     </View>
+                </LinearGradient>
                 <View style={styles.navigator}></View>
             </View>
         )
@@ -165,9 +176,6 @@ class SettingsScreen extends React.Component {
 
 
 }
-
-
-
 
 export default SettingsScreen
 

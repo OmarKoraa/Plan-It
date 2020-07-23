@@ -208,7 +208,7 @@ class StartScreen extends React.Component {
                 paddingRight: 0.1 * Dimensions.get('screen').width,
                 textAlign: "center",
                 textShadowRadius: 6,
-                textShadowColor: 'black',
+                textShadowColor: '#000000',
                 color: "white",
                 fontFamily: this.props.screenProps.fontFamily
 
@@ -227,7 +227,7 @@ class StartScreen extends React.Component {
                 paddingRight: 0.1 * Dimensions.get('screen').width,
                 textAlign: "center",
                 textShadowRadius: 6,
-                textShadowColor: 'black',
+                textShadowColor: '#000000',
                 color: "white",
                 paddingBottom: 0,
                 fontFamily: this.props.screenProps.fontFamily
@@ -264,7 +264,7 @@ class StartScreen extends React.Component {
                                 <FontAwesome name={this.state.password.length < 3 ? "circle-o" : "circle"} size={0.08 * Dimensions.get('screen').width > 40 ? 40 : 0.08 * Dimensions.get('screen').width} color={"white"} style={{ alignSelf: 'center', paddingLeft: 0.045 * Dimensions.get('screen').width }} onPress={() => { this.pass.focus() }} />
                                 <FontAwesome name={this.state.password.length < 4 ? "circle-o" : "circle"} size={0.08 * Dimensions.get('screen').width > 40 ? 40 : 0.08 * Dimensions.get('screen').width} color={"white"} style={{ alignSelf: 'center', paddingLeft: 0.045 * Dimensions.get('screen').width }} onPress={() => { this.pass.focus() }} />
                             </View>
-                            <TextInput selectionColor="#00000000" keyboardType={'number-pad'} style={styles.pass} value={this.state.password} onChangeText={pass => { if (pass.length <= 4) this.setState({ password: pass }); if (this.state.firstTime === false && pass.length === 4) this.checkPass() }} ref={(input) => { this.pass = input; }} keyboardAppearance={this.props.screenProps.mode}>
+                            <TextInput selectionColor="#00000000" keyboardType={'numeric'} style={styles.pass} value={this.state.password} onChangeText={pass => { if (pass.length <= 4) this.setState({ password: pass }); if (this.state.firstTime === false && pass.length === 4) this.checkPass() }} ref={(input) => { this.pass = input; }} keyboardAppearance={this.props.screenProps.mode}>
                             </TextInput>
                             {this.state.firstTime ?
                                 <Animated.View style={{ marginTop: this.buttonPadding }}>

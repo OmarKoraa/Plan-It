@@ -15,8 +15,8 @@ class App extends React.Component {
       isReady: false,
       mode: "",
       colors: {
-        'backColor': 'black',
-        'textColor': 'white',
+        'backColor': '#000000',
+        'textColor': '#ffffff',
         'themeColor': 'purple',
         'backColorModal': '#555555',
         'greyishBackColor': '#111111'
@@ -32,7 +32,10 @@ class App extends React.Component {
   async componentDidUpdate() {
     if (this.state.updateFrequentlies) {
       let frequentlies = await AsyncStorage.getItem('frequentlies')
+      frequentlies = JSON.parse(frequentlies)
       this.setState({ frequentlies: frequentlies, updateFrequentlies: false })
+      console.log("Updated")
+      console.log(frequentlies)
     }
   }
 
@@ -40,7 +43,7 @@ class App extends React.Component {
     let frequentlies = await AsyncStorage.getItem('frequentlies')
     if (!frequentlies) {
       frequentlies = []
-      AsyncStorage.setItem('frequentlies', JSON.stringify([]))
+      await AsyncStorage.setItem('frequentlies', JSON.stringify([]))
     } else
       frequentlies = JSON.parse(frequentlies)
     
@@ -49,8 +52,8 @@ class App extends React.Component {
     let result = await AsyncStorage.getItem('mode')
     if (result) {
       let colors = {
-        'backColor': result === 'dark' ? 'black' : 'white',
-        'textColor': result === 'dark' ? 'white' : 'black',
+        'backColor': result === 'dark' ? '#000000' : '#ffffff',
+        'textColor': result === 'dark' ? '#ffffff' : '#000000',
         'themeColor': 'purple',
         'backColorModal': result === 'dark' ? '#333333' : "#cccccc",
         'greyishBackColor': result === 'dark' ? '#111111' : '#eeeeee'
@@ -59,9 +62,9 @@ class App extends React.Component {
     }
     else {
       let colors = {
-        'backColor': 'black',
-        'textColor': 'white',
-        'themeColor': 'purple',
+        'backColor': '#000000',
+        'textColor': '#ffffff',
+        'themeColor': '#800080',
         'backColorModal': '#555555',
         'greyishBackColor': '#111111'
       }
@@ -84,11 +87,16 @@ class App extends React.Component {
 
   render() {
     if (!this.state.isReady) {
-      return (<AppLoading
+      return (
+       
+
+      <AppLoading
         startAsync={this._cacheResourcesAsync}
         onFinish={() => this.setState({ isReady: true })}
         onError={console.warn}
-      />)
+        /> 
+         
+        )
     }
     
     return (
