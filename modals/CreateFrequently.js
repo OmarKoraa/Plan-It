@@ -1,5 +1,5 @@
 import React from "react";
-import { View, TextInput, StyleSheet, Dimensions, Picker, Animated, Keyboard, TouchableWithoutFeedback, AsyncStorage, Text, ImageBackground, Image, Modal, ScrollView,TouchableHighlight } from 'react-native'
+import { View, TextInput, StyleSheet, Dimensions, Picker, Animated, Keyboard, TouchableWithoutFeedback, AsyncStorage, Text, ImageBackground, Image, Modal, ScrollView, TouchableHighlight } from 'react-native'
 import { Button, Icon, Card, Divider } from 'react-native-elements'
 import { FontAwesome } from '@expo/vector-icons'
 import { categories } from '../assets/constants/categories'
@@ -21,12 +21,13 @@ class CreateFrequentlyModal extends React.Component {
             category: '',
             type: 'None',
             weeklyDays: [],
-            monthlyDay:'1',
-            yearlyDay:'1',
-            yearlyMonth:'January'
+            monthlyDay: '1',
+            yearlyDay: '1',
+            yearlyMonth: 'January'
         }
         this.titleAnimation = new Animated.Value(0)
         this.typeAnimation = new Animated.Value(0)
+        this.weeklyDaysAnimation = new Animated.Value(0)
     }
 
     getCategories() {
@@ -37,49 +38,49 @@ class CreateFrequentlyModal extends React.Component {
         })
     }
 
-    getDaysMonthly(){
-        let days = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31"]
-        return days.map(day=>{
+    getDaysMonthly() {
+        let days = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"]
+        return days.map(day => {
             return <Picker.Item key={day} label={day} value={day} />
         })
     }
 
-    getDaysYearly(){
+    getDaysYearly() {
         let days = []
-        if(this.state.yearlyMonth==="February")
-           days = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28"]
-        if(this.state.yearlyMonth ==='January' ||  this.state.yearlyMonth ==='March' ||this.state.yearlyMonth ==='May' ||this.state.yearlyMonth ==='July' ||this.state.yearlyMonth ==='August' ||this.state.yearlyMonth ==='October' ||this.state.yearlyMonth ==='December' )  
-            days = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31"]
-        if(this.state.yearlyMonth ==='April' ||  this.state.yearlyMonth ==='June' ||this.state.yearlyMonth ==='September' ||this.state.yearlyMonth ==='November' )  
-        days = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30"]
-        return days.map(day=>{
-            return <Picker.Item key={day} label={day} value={day}/>
+        if (this.state.yearlyMonth === "February")
+            days = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28"]
+        if (this.state.yearlyMonth === 'January' || this.state.yearlyMonth === 'March' || this.state.yearlyMonth === 'May' || this.state.yearlyMonth === 'July' || this.state.yearlyMonth === 'August' || this.state.yearlyMonth === 'October' || this.state.yearlyMonth === 'December')
+            days = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"]
+        if (this.state.yearlyMonth === 'April' || this.state.yearlyMonth === 'June' || this.state.yearlyMonth === 'September' || this.state.yearlyMonth === 'November')
+            days = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30"]
+        return days.map(day => {
+            return <Picker.Item key={day} label={day} value={day} />
         })
     }
 
-    getMonthsYearly(){
-        let months = ["January","February","March","April","May","June","July","August","September","October","November","December"]
-        return months.map(month=>{
-            return <Picker.Item key={month} label={month} value={month}/>
+    getMonthsYearly() {
+        let months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+        return months.map(month => {
+            return <Picker.Item key={month} label={month} value={month} />
         })
     }
 
-    close(){
+    close() {
         this.setState({
             title: '',
             description: '',
             category: '',
             type: 'None',
             weeklyDays: [],
-            monthlyDay:'1',
-            yearlyDay:'1',
-            yearlyMonth:'January'
+            monthlyDay: '1',
+            yearlyDay: '1',
+            yearlyMonth: 'January'
         })
         this.props.closeModal()
-        
+
     }
 
-    startShake(animation){
+    startShake(animation) {
         Animated.sequence([
             Animated.timing(animation, { toValue: 10, duration: 100, useNativeDriver: false }),
             Animated.timing(animation, { toValue: -10, duration: 100, useNativeDriver: false }),
@@ -89,17 +90,21 @@ class CreateFrequentlyModal extends React.Component {
     }
 
 
-     save=async()=>{
-        
-        if(this.state.title===''){
+    save = async () => {
+
+        if (this.state.title === '') {
             this.startShake(this.titleAnimation)
         }
 
-        if(this.state.type==='None'){
+        if (this.state.type === 'None') {
             this.startShake(this.typeAnimation)
         }
 
-        if(this.state.title===''||this.state.type==='None'){
+        if(this.state.weeklyDays.length===0 && this.state.type==='Weekly'){
+            this.startShake(this.weeklyDaysAnimation)
+        }
+
+        if (this.state.title === '' || this.state.type === 'None'||(this.state.weeklyDays.length===0 && this.state.type==='Weekly')) {
             return
         }
 
@@ -107,33 +112,33 @@ class CreateFrequentlyModal extends React.Component {
         frequentlies = JSON.parse(frequentlies)
         let id = await Random.getRandomBytesAsync(32)
         let frequently = {
-            id:id,
+            id: id,
             title: this.state.title,
             description: this.state.description,
             creationDate: new Date(),
-            type:this.state.type,
-            category:this.state.category,
-            weeklyDays : this.state.type==='Weekly'?this.state.weeklyDays:null,
-            monthlyDay:this.state.type==='Monthly'?this.state.monthlyDay:null,
-            yearlyDay:this.state.type==='Yearly'?this.state.yearlyDay:null,
-            yearlyMonth:this.state.type==='Yearly'?this.state.yearlyMonth:null
+            type: this.state.type,
+            category: this.state.category,
+            weeklyDays: this.state.type === 'Weekly' ? this.state.weeklyDays : [],
+            monthlyDay: this.state.type === 'Monthly' ? this.state.monthlyDay : '1',
+            yearlyDay: this.state.type === 'Yearly' ? this.state.yearlyDay : '1',
+            yearlyMonth: this.state.type === 'Yearly' ? this.state.yearlyMonth : 'January'
         }
         frequentlies.push(frequently)
         frequentlies = JSON.stringify(frequentlies)
-        AsyncStorage.setItem('frequentlies',frequentlies)
+        await AsyncStorage.setItem('frequentlies', frequentlies)
         this.setState({
             title: '',
             description: '',
             category: '',
             type: 'None',
             weeklyDays: [],
-            monthlyDay:'1',
-            yearlyDay:'1',
-            yearlyMonth:'January'
+            monthlyDay: '1',
+            yearlyDay: '1',
+            yearlyMonth: 'January'
         })
         this.props.updateFrequentlies()
         this.props.closeModal()
-        
+
     }
 
 
@@ -147,7 +152,10 @@ class CreateFrequentlyModal extends React.Component {
                 borderTopWidth: 0,
                 borderBottomWidth: 0,
                 borderColor: this.props.colors["textColor"],
-                borderWidth: 2
+                borderWidth: 2,
+                marginTop: (1 / 80.0) * Dimensions.get('screen').height > 8 ? 8 : (1 / 80.0) * Dimensions.get('screen').height,
+                paddingTop: (1 / 80.0) * Dimensions.get('screen').height > 7 ? 7 : (1 / 80.0) * Dimensions.get('screen').height
+
 
             },
             titleView: {
@@ -159,66 +167,68 @@ class CreateFrequentlyModal extends React.Component {
                 backgroundColor: this.props.colors["themeColor"],
                 borderTopLeftRadius: 25,
                 borderTopRightRadius: 25,
-                marginBottom: -20,
-                height: 50,
+                marginBottom:  - 0.025 * Dimensions.get('screen').height < -20 ? -20 : - 0.025 * Dimensions.get('screen').height,
+                height: 0.07 * Dimensions.get('screen').height > 60 ? 60 : 0.07 * Dimensions.get('screen').height,
                 borderWidth: 2,
                 borderBottomWidth: 0,
                 borderColor: this.props.colors["textColor"],
             },
             titleText: {
-                fontSize: 20,
+                fontSize: 0.025 * Dimensions.get('screen').height>20?20:0.025 * Dimensions.get('screen').height,
                 borderColor: this.props.colors["textColor"],
                 color: this.props.theme==='Focus'?this.props.colors['backColor']:'white',
                 fontFamily: this.props.fontFamily,
-                paddingBottom: 5,
-                paddingTop: 10,
+                paddingTop: (1 / 80.0) * Dimensions.get('screen').height > 7 ? 7 : (1 / 80.0) * Dimensions.get('screen').height,
+           
             },
             smallText: {
-                fontSize: 15,
+                fontSize: 0.018 * Dimensions.get('screen').height,
                 fontFamily: this.props.fontFamily,
-                paddingTop: 15,
-                color:this.props.theme==='Focus'?this.props.colors['backColor']:'white'
-            },
+                paddingTop: 0.018 * Dimensions.get('screen').height > 12 ? 12 : 0.018 * Dimensions.get('screen').height,
+                color: this.props.theme==='Focus'?this.props.colors['backColor']:'white',
+             },
             textInput: {
                 width: 0.85 * Dimensions.get('window').width,
                 borderWidth: 2,
                 borderColor: this.props.colors['textColor'],
-                height: 40,
+                height: 0.05 * Dimensions.get('screen').height>40?40:0.05 * Dimensions.get('screen').height,
                 alignSelf: 'center',
                 borderRadius: 10,
-                paddingLeft: 10,
-                fontSize: 18,
-                marginBottom: 10,
-                color:this.props.colors['textColor']
+                paddingLeft: 0.018 * Dimensions.get('screen').height > 12 ? 12 : 0.018 * Dimensions.get('screen').height,
+                fontSize: 0.03 * Dimensions.get('screen').height > 18 ? 18 : 0.03 * Dimensions.get('screen').height,
+                marginBottom: 0.018 * Dimensions.get('screen').height > 12 ? 12 : 0.018 * Dimensions.get('screen').height,
+                color: this.props.colors['textColor']
             },
             text: {
-                fontSize: 22,
+                fontSize: 0.025 * Dimensions.get('screen').height>20?20:0.025 * Dimensions.get('screen').height,
                 fontFamily: this.props.fontFamily,
                 color: this.props.colors["textColor"],
-                paddingBottom: 10,
+                paddingBottom: 0.018 * Dimensions.get('screen').height > 12 ? 12 : 0.018 * Dimensions.get('screen').height,
                 paddingLeft: 0
             },
             scrollView: {
-                height: 0.85 * Dimensions.get('screen').height - 80,
+                height: 0.85 * Dimensions.get('screen').height -0.07 * Dimensions.get('screen').height ,
 
             },
             picker: {
-                height: 88,
+                height: 0.1 * Dimensions.get('screen').height>88?88:0.1 * Dimensions.get('screen').height,
+
                 backgroundColor: 'transparent',
                 width: 0.85 * Dimensions.get('window').width,
                 alignSelf: 'center',
-                marginBottom: 10,
-                
+                marginBottom: 0.018 * Dimensions.get('screen').height > 12 ? 12 : 0.018 * Dimensions.get('screen').height,
+
                 color: this.props.colors['textColor'],
-                alignContent:'center'
+                alignContent: 'center'
 
 
             },
             pickerItem: {
-                height: 88,
+                height: 0.1 * Dimensions.get('screen').height>88?88:0.1 * Dimensions.get('screen').height,
+
                 color: this.props.colors['textColor'],
                 borderWidth: 2,
-                borderRadius: 10,
+                borderRadius: 0.018 * Dimensions.get('screen').height > 12 ? 12 : 0.018 * Dimensions.get('screen').height,
                 borderColor: this.props.colors['textColor']
 
             }
@@ -234,19 +244,19 @@ class CreateFrequentlyModal extends React.Component {
                 }}
             >
                 <View style={styles.titleView}>
-                    <TouchableHighlight onPress={()=>this.close()} activeOpacity={1} underlayColor={'#00000000'}><Text style={styles.smallText}>Close</Text></TouchableHighlight>
+                    <TouchableHighlight onPress={() => this.close()} activeOpacity={1} underlayColor={'#00000000'}><Text style={styles.smallText}>Close</Text></TouchableHighlight>
                     <Text style={styles.titleText}>Create Frequently</Text>
                     <TouchableHighlight onPress={this.save} activeOpacity={1} underlayColor={'#00000000'}><Text style={styles.smallText}>Save</Text></TouchableHighlight>
                 </View>
                 <Card containerStyle={styles.card}>
                     <ScrollView style={styles.scrollView}>
                         <Text style={styles.text}>Title (*)</Text>
-                        <Animated.View style={{transform:[{translateX:this.titleAnimation}]}}>
-                        <TextInput value={this.state.title} placeholder={'A title for your Frequently'} style={styles.textInput} onChangeText={text => this.setState({ title: text })} placeholderTextColor={'#888888'} keyboardAppearance={this.props.mode} />
+                        <Animated.View style={{ transform: [{ translateX: this.titleAnimation }] }}>
+                            <TextInput value={this.state.title} placeholder={'A title for your Frequently'} style={styles.textInput} onChangeText={text => this.setState({ title: text })} placeholderTextColor={'#888888'} keyboardAppearance={this.props.mode} />
                         </Animated.View>
 
                         <Text style={styles.text}>Description</Text>
-                        <TextInput value={this.state.description} placeholder={'A little description'} style={[styles.textInput, { height: 120 }]} onChangeText={text => this.setState({ description: text })} placeholderTextColor={'#888888'} keyboardAppearance={this.props.mode} multiline={true}></TextInput>
+                        <TextInput value={this.state.description} placeholder={'A little description'} style={[styles.textInput, { height:  0.14 * Dimensions.get('screen').height>120?120:0.14 * Dimensions.get('screen').height }]} onChangeText={text => this.setState({ description: text })} placeholderTextColor={'#888888'} keyboardAppearance={this.props.mode} multiline={true}></TextInput>
 
                         <Text style={styles.text}>Category</Text>
                         <Picker style={styles.picker} itemStyle={styles.pickerItem} selectedValue={this.state.category}
@@ -257,58 +267,63 @@ class CreateFrequentlyModal extends React.Component {
                         </Picker>
 
                         <Text style={styles.text}>Type (*)</Text>
-                        <Animated.View style={{transform:[{translateX:this.typeAnimation}]}}>
-                        <Picker style={styles.picker} itemStyle={styles.pickerItem} selectedValue={this.state.type}
-                            onValueChange={(itemValue) => this.setState({ type: itemValue })} 
-                            mode={'dropdown'}>
-                            <Picker.Item label="None" value="None" />
-                            <Picker.Item label="Daily" value="Daily" />
-                            <Picker.Item label="Weekly" value="Weekly" />
-                            <Picker.Item label="Monthly" value="Monthly" />
-                            <Picker.Item label="Yearly" value="Yearly" />
-                        </Picker>
+                        <Animated.View style={{ transform: [{ translateX: this.typeAnimation }] }}>
+                            <Picker style={styles.picker} itemStyle={styles.pickerItem} selectedValue={this.state.type}
+                                onValueChange={(itemValue) => this.setState({ type: itemValue })}
+                                mode={'dropdown'}>
+                                <Picker.Item label="None" value="None" />
+                                <Picker.Item label="Daily" value="Daily" />
+                                <Picker.Item label="Weekly" value="Weekly" />
+                                <Picker.Item label="Monthly" value="Monthly" />
+                                <Picker.Item label="Yearly" value="Yearly" />
+                            </Picker>
                         </Animated.View>
-                        {this.state.type === 'Weekly' ? <Text style={styles.text}>Select Day(s)</Text> : null}
+                        {this.state.type === 'Weekly' ? <Animated.Text style={[styles.text,{transform: [{ translateX: this.weeklyDaysAnimation }]}] }>Select Day(s)</Animated.Text> : null}
 
-                        {this.state.type === 'Weekly' ? <SelectMultiple
-                            items={weekDays}
-                            selectedItems={this.state.weeklyDays}
-                            onSelectionsChange={selected => { this.setState({ weeklyDays: selected }) }}
-                            rowStyle={{ backgroundColor: this.props.colors["backColorModal"] }}
-                            labelStyle={{color:this.props.colors["textColor"]}}
-                        /> : null}
+                        {this.state.type === 'Weekly' ?
+                            <SelectMultiple
+                                items={weekDays}
+                                selectedItems={this.state.weeklyDays}
+                                onSelectionsChange={selected => { this.setState({ weeklyDays: selected }) }}
+                                rowStyle={{ backgroundColor: this.props.colors["backColorModal"] }}
+                                labelStyle={{ color: this.props.colors["textColor"] }}
+                                selectedRowStyle ={{backgroundColor:this.props.colors['themeColor']}}
+                                selectedLabelStyle={{color:this.props.theme==='Focus'?this.props.colors['backColor']:this.props.colors["textColor"]}}
+                            />  
+                            : null}
+
 
                         {this.state.type === 'Monthly' ? <Text style={styles.text}>Select Day</Text> : null}
 
                         {this.state.type === 'Monthly' ? <Picker style={styles.picker} itemStyle={styles.pickerItem} selectedValue={this.state.monthlyDay}
                             onValueChange={(itemValue) => this.setState({ monthlyDay: itemValue })} mode={'dropdown'} >
-                                {this.getDaysMonthly()}
+                            {this.getDaysMonthly()}
                         </Picker> : null}
 
-                        
-                        {this.state.type === 'Yearly' ? 
-                        <View>
-                             <View style={{flexDirection:'row',justifyContent:"space-around"}}>
-                             <Text style={styles.text}>Select Day</Text> 
-                             <Text style={styles.text}>Select Month</Text> 
 
-                             </View>
-                        <View style={{flexDirection:'row',justifyContent:"space-between"}}>
-                            <Picker style={[styles.picker,{width:0.4*Dimensions.get('screen').width}]} itemStyle={styles.pickerItem} selectedValue={this.state.yearlyDay}
-                            onValueChange={(itemValue) => this.setState({ yearlyDay: itemValue })}mode={'dropdown'} >
-                                {this.getDaysYearly()}
-                        </Picker> 
-                        <Picker style={[styles.picker,{width:0.4*Dimensions.get('screen').width}]} itemStyle={styles.pickerItem} selectedValue={this.state.yearlyMonth}
-                            onValueChange={(itemValue) => this.setState({ yearlyMonth: itemValue })} mode={'dropdown'}>
-                                {this.getMonthsYearly()}
-                        </Picker> 
-                            </View>
-                            </View>: null}
+                        {this.state.type === 'Yearly' ?
+                            <View>
+                                <View style={{ flexDirection: 'row', justifyContent: "space-around" }}>
+                                    <Text style={styles.text}>Select Day</Text>
+                                    <Text style={styles.text}>Select Month</Text>
 
-
+                                </View>
+                                <View style={{ flexDirection: 'row', justifyContent: "space-between" }}>
+                                    <Picker style={[styles.picker, { width: 0.4 * Dimensions.get('screen').width }]} itemStyle={styles.pickerItem} selectedValue={this.state.yearlyDay}
+                                        onValueChange={(itemValue) => this.setState({ yearlyDay: itemValue })} mode={'dropdown'} >
+                                        {this.getDaysYearly()}
+                                    </Picker>
+                                    <Picker style={[styles.picker, { width: 0.4 * Dimensions.get('screen').width }]} itemStyle={styles.pickerItem} selectedValue={this.state.yearlyMonth}
+                                        onValueChange={(itemValue) => this.setState({ yearlyMonth: itemValue })} mode={'dropdown'}>
+                                        {this.getMonthsYearly()}
+                                    </Picker>
+                                </View>
+                            </View> : null}
 
 
-                        <View style={{ height: 50 }} />
+
+
+                        <View style={{ height: 0.08 * Dimensions.get('screen').height > 60 ? 60 : 0.08 * Dimensions.get('screen').height }} />
                     </ScrollView>
                 </Card>
             </Modal>

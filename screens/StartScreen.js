@@ -16,8 +16,8 @@ class StartScreen extends React.Component {
     constructor(props) {
         super(props);
         this.shakeAnimation = new Animated.Value(0);
-        this.buttonPadding = new Animated.Value(0.05 * Dimensions.get('screen').height);
-        this.imageHeight = new Animated.Value(0.4 * Dimensions.get('screen').height);
+        this.buttonPadding = new Animated.Value(0.02 * Dimensions.get('screen').height);
+        this.imageHeight = new Animated.Value(0.3 * Dimensions.get('screen').height);
         this.imageWidth = new Animated.Value(0.8 * Dimensions.get('screen').width)
         this.padding = new Animated.Value(0.05 * Dimensions.get('screen').height)
         this.state = {
@@ -102,7 +102,7 @@ class StartScreen extends React.Component {
             }),
             Animated.timing(this.imageHeight, {
                 duration: event.duration,
-                toValue: 0.25 * 0.4 * Dimensions.get('screen').height,
+                toValue: 0.25 * 0.3 * Dimensions.get('screen').height,
                 useNativeDriver: false
             }),
             Animated.timing(this.imageWidth, {
@@ -112,7 +112,7 @@ class StartScreen extends React.Component {
             }),
             Animated.timing(this.padding, {
                 duration: event.duration,
-                toValue: 0.025 * Dimensions.get('screen').height,
+                toValue: 0.01 * Dimensions.get('screen').height,
                 useNativeDriver: false
             })
         ]).start();
@@ -127,7 +127,7 @@ class StartScreen extends React.Component {
             }),
             Animated.timing(this.imageHeight, {
                 duration: event.duration,
-                toValue: 0.4 * Dimensions.get('screen').height,
+                toValue: 0.3 * Dimensions.get('screen').height,
                 useNativeDriver: false
             }),
             Animated.timing(this.imageWidth, {
@@ -137,7 +137,7 @@ class StartScreen extends React.Component {
             }),
             Animated.timing(this.padding, {
                 duration: event.duration,
-                toValue: 0.05 * Dimensions.get('screen').height,
+                toValue: 0.02 * Dimensions.get('screen').height,
                 useNativeDriver: false
             })
         ]).start();
@@ -217,7 +217,7 @@ class StartScreen extends React.Component {
             },
             image: {
                 width: 0.8 * Dimensions.get('screen').width,
-                height: 0.4 * Dimensions.get('screen').height,
+                height: 0.3 * Dimensions.get('screen').height,
                 resizeMode: 'contain',
                 alignSelf: 'center',
             },

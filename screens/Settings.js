@@ -3,7 +3,6 @@ import { View, TextInput, StyleSheet, Dimensions, Animated, Keyboard, TouchableW
 import { Button, Icon, Card, Divider, colors } from 'react-native-elements'
 import { FontAwesome, AntDesign, MaterialIcons, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons'
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import Nebula from '../assets/images/Nebula5.jpeg'
 import { TouchableOpacity } from "react-native-gesture-handler";
 import EditNameModal from '../modals/EditName'
 import ChangePasswordModal from '../modals/ChangePassword'
@@ -17,7 +16,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 class SettingsScreen extends React.Component {
     constructor(props) {
         super(props);
-        console.log(props)
         this.state = {
             editNameModalVisible: false,
             changePasswordModalVisible: false,
@@ -95,7 +93,7 @@ class SettingsScreen extends React.Component {
             },
             version:{
                 marginTop:0.025*Dimensions.get('screen').height>23?23:0.025*Dimensions.get('screen').height,
-                color:this.props.screenProps.colors["textColor"],
+                color:this.props.screenProps.theme==='Focus'?this.props.screenProps.colors['backColor']:this.props.screenProps.colors["textColor"],
                 fontFamily: this.props.screenProps.fontFamily,
                 alignSelf:'center',
                 opacity:0.6

@@ -3,7 +3,7 @@ import { YellowBox } from 'react-native'
 
 YellowBox.ignoreWarnings(['Require cycles are allowed'])
 import React from 'react';
-import { Platform, Easing, Animated, Dimensions, AsyncStorage, Text } from 'react-native';
+import { Platform, Easing, Animated, Dimensions, AsyncStorage, Text,View } from 'react-native';
 import {
 
   createAppContainer,
@@ -16,8 +16,9 @@ import StartScreen from '../screens/StartScreen'
 import SettingsScreen from '../screens/Settings'
 import ManageFrequentliesScreen from '../screens/ManageFrequentlies'
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { fc, bc, bcf } from '../assets/constants/color'
 import { TouchableOpacity } from 'react-native';
+import TodayScreen from '../screens/Today'
+import { MaterialIcons } from 'react-native-vector-icons'
 
 import { COLORS } from '../App'
 import { THEME } from '../App'
@@ -31,11 +32,37 @@ const getTabBarIcon = (navigation, focused, tintColor) => {
   iconName = 'person';
   let color = ''
   if (THEME === 'Focus')
-    color = focused ? MODE === 'dark' ? '#ffffff' : '#000000' : MODE === 'dark' ? '#aaaaaa' : '#555555'
+    color = focused ? MODE === 'dark' ? '#ffffff' : '#000000' : MODE === 'dark' ? '#888888' : '#888888'
   else
-    color = focused ? COLORS.themeColor : COLORS.textColor
+    color = focused ? COLORS.themeColor : '#888888'
+  if (routeName === "Settings")
+    return <IconComponent name={'md-settings'} size={0.1 * Dimensions.get('screen').height > 35 ? 35 : 0.1 * Dimensions.get('screen').height} color={color} style={{ position: 'absolute', bottom: 0.044 * Dimensions.get('screen').height }} />;
+  else
+    {
+      let date=new Date()
+      let day = date.getDate()
+      let month = date.getMonth()+1
+      switch(month){
+        case 1: month='Jan';break;
+        case 2: month='Feb';break;
+        case 3: month='Mar';break;
+        case 4: month='Apr';break;
+        case 5: month='May';break;
+        case 6: month='Jun';break;
+        case 7: month='Jul';break;
+        case 8: month='Aug';break;
+        case 9: month='Sep';break;
+        case 10: month='Oct';break;
+        case 11: month='Nov';break;
+        case 12: month='Dec';break;
+      }
 
-  return <IconComponent name={'md-settings'} size={0.06 * Dimensions.get('screen').height > 30 ? 30 : 0.03 * Dimensions.get('screen').height} color={color} style={{ position: 'absolute', bottom: 0.06 * Dimensions.get('screen').height }} />;
+      return<View style={{borderColor:color,borderWidth:1,borderRadius:5,width:0.1*Dimensions.get('screen').width>35?35:0.1*Dimensions.get('screen').width,position: 'absolute', bottom: 0.05 * Dimensions.get('screen').height }}>
+        <View style={{backgroundColor:color}}><Text style = {{color:THEME==='Focus'?MODE==='dark'?"#000000":'#ffffff':COLORS.textColor,fontSize:0.018 * Dimensions.get('screen').height > 12 ? 12 : 0.018 * Dimensions.get('screen').height,alignSelf:'center',textAlign:'center'}}>{month}</Text></View>
+        <Text style = {{color:COLORS.textColor,fontSize:0.02 * Dimensions.get('screen').height > 15 ? 15 : 0.02 * Dimensions.get('screen').height,textAlign:'center'}}>{day}</Text>
+      </View>
+    }
+
 };
 
 
@@ -57,9 +84,25 @@ const Settings = createAppContainer(
   )
 )
 
+const Today = createAppContainer(
+  createStackNavigator({
+    Today: { screen: TodayScreen }
+  },
+    {
+      mode: "card",
+      headerMode: "none",
+
+      navigationOptions: {
+        headerVisible: true
+      },
+    }
+  )
+)
+
 const Home = createAppContainer(
   createBottomTabNavigator(
     {
+      Today: { screen: Today },
       Settings: { screen: Settings },
     },
     {
@@ -87,7 +130,6 @@ const Home = createAppContainer(
         }
       }),
       tabBarOptions: {
-        activeTintColor: fc,
         activeBackgroundColor: '#00000000',
         inactiveBackgroundColor: '#00000000',
         showLabel: false,
