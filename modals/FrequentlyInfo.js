@@ -33,9 +33,16 @@ class FrequentlyInfoModal extends React.Component{
             },
             text:{
                 fontSize:18,
-                color: this.props.colors["textColor"],
+                color:this.props.colors['textColor'],
                 alignSelf:'center',
                 fontFamily: this.props.fontFamily,
+            },
+            buttonText:{
+                color:this.props.theme==='Focus'?this.props.colors['backColor']:this.props.colors['textColor'],
+                alignSelf:'center',
+                fontFamily: this.props.fontFamily,
+                fontSize:18,
+
             },
             button:{
                 backgroundColor:this.props.colors["themeColor"],
@@ -69,7 +76,7 @@ class FrequentlyInfoModal extends React.Component{
                 </ScrollView>
                 <View style={Platform.OS==='ios'?styles.buttonView:null}>
 
-                <TouchableHighlight onPress={()=>this.props.closeModal()} style={styles.button} activeOpacity={1} underlayColor={'#00000000'}><Text style={styles.text}>Got it!</Text></TouchableHighlight>
+                <TouchableHighlight onPress={()=>this.props.closeModal()} style={styles.button} activeOpacity={1} underlayColor={'#00000000'}><Text style={styles.buttonText}>Got it!</Text></TouchableHighlight>
                 </View>
             </Card>
         </Modal>

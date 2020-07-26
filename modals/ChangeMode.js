@@ -34,7 +34,7 @@ class ChangeModeModal extends React.Component {
         let colors = {
             'backColor': mode === 'dark' ? '#000000' : '#ffffff',
             'textColor': mode === 'dark' ? '#ffffff' : '#000000',
-            'themeColor': 'purple',
+            'themeColor': this.props.theme === 'Galaxy'?'#800080':this.props.theme === 'Nature'? '#53833b':this.props.theme==='Sea'? '#006994':mode==='dark'?'#ffffff':'#000000',
             'backColorModal': mode === 'dark' ? '#333333' : "#cccccc",
             'greyishBackColor': mode === 'dark' ? '#111111' : '#eeeeee'
         }
@@ -65,7 +65,7 @@ class ChangeModeModal extends React.Component {
             text: {
                 fontSize: 0.025 * Dimensions.get('screen').height,
                 borderColor: this.props.colors["textColor"],
-                color: "white",
+                color: this.props.theme==='Focus'?this.props.colors['backColor']:'white',
                 fontFamily: this.props.fontFamily,
                 paddingTop: (1 / 80.0) * Dimensions.get('screen').height > 7 ? 7 : (1 / 80.0) * Dimensions.get('screen').height,
             },
@@ -74,7 +74,7 @@ class ChangeModeModal extends React.Component {
                 fontSize: 0.018 * Dimensions.get('screen').height,
                 fontFamily: this.props.fontFamily,
                 paddingTop: 0.018 * Dimensions.get('screen').height > 12 ? 12 : 0.018 * Dimensions.get('screen').height,
-                color: "white"
+                color: this.props.theme==='Focus'?this.props.colors['backColor']:'white',
             },
             titleView: {
                 flexDirection: "row",

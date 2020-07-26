@@ -3,6 +3,9 @@ import { View, TextInput, StyleSheet, Dimensions, ScrollView, Animated, Keyboard
 import { Button, Icon } from 'react-native-elements'
 import Nebula from '../assets/images/Nebula.gif'
 import Planet from '../assets/images/planet.png'
+import Sea from '../assets/images/Sea.gif'
+import Forest from '../assets/images/Forest.gif'
+import Focus from '../assets/images/Focus.gif'
 import { FontAwesome } from '@expo/vector-icons'
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
@@ -13,8 +16,8 @@ class StartScreen extends React.Component {
     constructor(props) {
         super(props);
         this.shakeAnimation = new Animated.Value(0);
-        this.buttonPadding = new Animated.Value(0.05 * Dimensions.get('screen').height);
-        this.imageHeight = new Animated.Value(0.25 * Dimensions.get('screen').height);
+        this.buttonPadding = new Animated.Value(0.02 * Dimensions.get('screen').height);
+        this.imageHeight = new Animated.Value(0.3 * Dimensions.get('screen').height);
         this.imageWidth = new Animated.Value(0.8 * Dimensions.get('screen').width)
         this.padding = new Animated.Value(0.05 * Dimensions.get('screen').height)
         this.state = {
@@ -99,7 +102,7 @@ class StartScreen extends React.Component {
             }),
             Animated.timing(this.imageHeight, {
                 duration: event.duration,
-                toValue: 0.5 * 0.25 * Dimensions.get('screen').height,
+                toValue: 0.25 * 0.3 * Dimensions.get('screen').height,
                 useNativeDriver: false
             }),
             Animated.timing(this.imageWidth, {
@@ -109,7 +112,7 @@ class StartScreen extends React.Component {
             }),
             Animated.timing(this.padding, {
                 duration: event.duration,
-                toValue: 0.025 * Dimensions.get('screen').height,
+                toValue: 0.01 * Dimensions.get('screen').height,
                 useNativeDriver: false
             })
         ]).start();
@@ -124,7 +127,7 @@ class StartScreen extends React.Component {
             }),
             Animated.timing(this.imageHeight, {
                 duration: event.duration,
-                toValue: 0.25 * Dimensions.get('screen').height,
+                toValue: 0.3 * Dimensions.get('screen').height,
                 useNativeDriver: false
             }),
             Animated.timing(this.imageWidth, {
@@ -134,7 +137,7 @@ class StartScreen extends React.Component {
             }),
             Animated.timing(this.padding, {
                 duration: event.duration,
-                toValue: 0.05 * Dimensions.get('screen').height,
+                toValue: 0.02 * Dimensions.get('screen').height,
                 useNativeDriver: false
             })
         ]).start();
@@ -196,10 +199,9 @@ class StartScreen extends React.Component {
             },
             backimage: {
                 flex: 1,
-                resizeMode: "center",
-                width: 1.2 * Dimensions.get('screen').width,
-                height: 1.2 * Dimensions.get('screen').height,
-                alignContent: 'center'
+                width: undefined,
+                height:  undefined,
+                alignSelf:'center'
             },
             text: {
                 fontSize: 0.027 * Dimensions.get('screen').height,
@@ -237,7 +239,9 @@ class StartScreen extends React.Component {
             button: {
                 width: 0.3 * Dimensions.get('screen').width > 150 ? 150 : 0.3 * Dimensions.get('screen').width,
                 alignSelf: 'center',
-                fontSize: 0.027 * Dimensions.get('screen').height
+                fontSize: 0.027 * Dimensions.get('screen').height,
+                borderWidth:1,
+                borderColor:'#ffffff'
 
                 // paddingBottom: 0.01*Dimensions.get('screen').height,
 
@@ -246,13 +250,13 @@ class StartScreen extends React.Component {
 
         return (
             <Animated.View style={[styles.fullscreen, { transform: [{ translateX: this.shakeAnimation }] }]}>
-                <ImageBackground source={Nebula} style={styles.backimage}>
+                <ImageBackground source={this.props.screenProps.theme ==='Galaxy'?Nebula:this.props.screenProps.theme ==='Sea'?Sea:this.props.screenProps.theme ==='Nature'?Forest:Focus} style={styles.backimage}>
                     <ScrollView style={{ flex: 1, height: Dimensions.get("screen").height }} scrollEnabled={false} keyboardShouldPersistTaps={"handled"}>
 
                         <View>
 
                             <Text style={styles.title}>Plan It</Text>
-                            <Animated.Image source={Planet} style={[styles.image, { height: this.imageHeight, width: this.imageWidth }]}></Animated.Image>
+                            <Animated.View style={[styles.image, { height: this.imageHeight, width: this.imageWidth }]} ></Animated.View>
                             <Animated.View style={{ paddingTop: this.padding, paddingBottom: this.padding }}>
                                 <Text style={styles.text}>{this.state.firstTime ? "First Time? \nGive us a Name and a Password" : "Hello, " + this.state.userName + "\n Please Enter Your Password"}</Text>
                             </Animated.View>

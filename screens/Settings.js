@@ -3,11 +3,11 @@ import { View, TextInput, StyleSheet, Dimensions, Animated, Keyboard, TouchableW
 import { Button, Icon, Card, Divider, colors } from 'react-native-elements'
 import { FontAwesome, AntDesign, MaterialIcons, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons'
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import Nebula from '../assets/images/Nebula5.jpeg'
 import { TouchableOpacity } from "react-native-gesture-handler";
 import EditNameModal from '../modals/EditName'
 import ChangePasswordModal from '../modals/ChangePassword'
 import ChangeModeModal from '../modals/ChangeMode'
+import ChangeThemeModal from '../modals/ChangeTheme'
 import { LinearGradient } from 'expo-linear-gradient';
 
 
@@ -16,15 +16,15 @@ import { LinearGradient } from 'expo-linear-gradient';
 class SettingsScreen extends React.Component {
     constructor(props) {
         super(props);
-
         this.state = {
             editNameModalVisible: false,
             changePasswordModalVisible: false,
             changeModeModalVisible: false,
+            changeThemeModalVisible:false
         }
     }
 
-    
+   
 
 
     render() {
@@ -93,7 +93,7 @@ class SettingsScreen extends React.Component {
             },
             version:{
                 marginTop:0.025*Dimensions.get('screen').height>23?23:0.025*Dimensions.get('screen').height,
-                color:this.props.screenProps.colors["textColor"],
+                color:this.props.screenProps.theme==='Focus'?this.props.screenProps.colors['backColor']:this.props.screenProps.colors["textColor"],
                 fontFamily: this.props.screenProps.fontFamily,
                 alignSelf:'center',
                 opacity:0.6
@@ -110,9 +110,11 @@ class SettingsScreen extends React.Component {
                 </Card>
                     <View>
 
-                    <EditNameModal mode={this.props.screenProps.mode} colors={this.props.screenProps.colors} modalVisible={this.state.editNameModalVisible} closeModal={() => { this.setState({ editNameModalVisible: false }) }} fontFamily={this.props.screenProps.fontFamily}/>
-                    <ChangePasswordModal mode={this.props.screenProps.mode} colors={this.props.screenProps.colors} modalVisible={this.state.changePasswordModalVisible} closeModal={() => { this.setState({ changePasswordModalVisible: false }) }} fontFamily={this.props.screenProps.fontFamily} />
-                    <ChangeModeModal mode={this.props.screenProps.mode} colors={this.props.screenProps.colors} modalVisible={this.state.changeModeModalVisible} closeModal={() => { this.setState({ changeModeModalVisible: false }) }} setMode={(mode, colors) => this.props.screenProps.setMode(mode, colors)} fontFamily={this.props.screenProps.fontFamily}/>
+                    <EditNameModal mode={this.props.screenProps.mode} theme={this.props.screenProps.theme} colors={this.props.screenProps.colors} modalVisible={this.state.editNameModalVisible} closeModal={() => { this.setState({ editNameModalVisible: false }) }} fontFamily={this.props.screenProps.fontFamily}/>
+                    <ChangePasswordModal mode={this.props.screenProps.mode}  theme={this.props.screenProps.theme} colors={this.props.screenProps.colors} modalVisible={this.state.changePasswordModalVisible} closeModal={() => { this.setState({ changePasswordModalVisible: false }) }} fontFamily={this.props.screenProps.fontFamily} />
+                    <ChangeModeModal mode={this.props.screenProps.mode} theme={this.props.screenProps.theme} colors={this.props.screenProps.colors} modalVisible={this.state.changeModeModalVisible} closeModal={() => { this.setState({ changeModeModalVisible: false }) }} setMode={(mode, colors) => this.props.screenProps.setMode(mode, colors)} fontFamily={this.props.screenProps.fontFamily}/>
+                    <ChangeThemeModal mode={this.props.screenProps.mode} theme={this.props.screenProps.theme} colors={this.props.screenProps.colors} modalVisible={this.state.changeThemeModalVisible} closeModal={() => { this.setState({ changeThemeModalVisible: false }) }} setTheme={(theme,colors) => this.props.screenProps.setTheme(theme,colors)} fontFamily={this.props.screenProps.fontFamily}/>
+
                     <ScrollView >
                         {/* ME */}
                         <Text style={styles.smallTitle}>Me</Text>
@@ -126,7 +128,7 @@ class SettingsScreen extends React.Component {
                             </View>
                             <TouchableOpacity style={styles.button} onPress={() => { this.setState({ changePasswordModalVisible: true }) }}>
                                 <Text style={styles.text}>Change Password</Text>
-                                <AntDesign name='lock' color={this.props.screenProps.colors["themeColor"]} size={0.0325*Dimensions.get('screen').height>30?30:0.0325*Dimensions.get('screen').height} />
+                                <MaterialIcons name='security' color={this.props.screenProps.colors["themeColor"]} size={0.029*Dimensions.get('screen').height>25?25:0.029*Dimensions.get('screen').height} />
                             </TouchableOpacity>
                         </Card>
 
@@ -137,6 +139,14 @@ class SettingsScreen extends React.Component {
                                 <Text style={styles.text}>Change Mode</Text>
                                 <MaterialCommunityIcons name={'theme-light-dark'} color={this.props.screenProps.colors["themeColor"]} size={0.03*Dimensions.get('screen').height>28?28:0.03*Dimensions.get('screen').height} style={{ paddingTop: 0.003*Dimensions.get('screen').height ,paddingRight:Dimensions.get('screen').width<400?0.003*Dimensions.get('screen').width:0}} />
                             </TouchableOpacity>
+                            <View style={{ paddingTop: 0.0125*Dimensions.get('screen').height, paddingBottom: 0.0125*Dimensions.get('screen').height }}>
+                                <Divider style={{ backgroundColor: this.props.screenProps.colors["themeColor"] }}></Divider>
+                            </View>
+                            <TouchableOpacity style={styles.button} onPress={() => { this.setState({ changeThemeModalVisible: true }) }}>
+                                <Text style={styles.text}>Change Theme</Text>
+                                <AntDesign name={'dingding'} color={this.props.screenProps.colors["themeColor"]} size={0.03*Dimensions.get('screen').height>28?28:0.03*Dimensions.get('screen').height} style={{ paddingTop: 0.003*Dimensions.get('screen').height ,paddingRight:Dimensions.get('screen').width<400?0.003*Dimensions.get('screen').width:0}} />
+                            </TouchableOpacity>
+                            {/* dingding picture layout */}
                         </Card>
 
                         {/* Frequentlies */}
@@ -158,6 +168,13 @@ class SettingsScreen extends React.Component {
                                 <Text style={styles.text}>Clear All Data</Text>
                                 <MaterialIcons name={'delete-forever'} color={this.props.screenProps.colors["themeColor"]} size={0.0325*Dimensions.get('screen').height>30?30:0.0325*Dimensions.get('screen').height}  />
                             </TouchableOpacity>
+                            <View style={{ paddingTop: 0.0125*Dimensions.get('screen').height, paddingBottom: 0.0125*Dimensions.get('screen').height }}>
+                                <Divider style={{ backgroundColor: this.props.screenProps.colors["themeColor"] }}></Divider>
+                            </View>
+                            <TouchableOpacity style={styles.button} onPress={async () => {  this.props.navigation.navigate("Start") }}>
+                                <Text style={styles.text}>Lock</Text>
+                                <AntDesign name={'lock'} color={this.props.screenProps.colors["themeColor"]} size={0.0325*Dimensions.get('screen').height>30?30:0.0325*Dimensions.get('screen').height}  />
+                            </TouchableOpacity>
                         </Card>
 
 
@@ -166,6 +183,7 @@ class SettingsScreen extends React.Component {
 
                         {/* Version */}
                         <Text style={styles.version}>Version: 1.0 Beta</Text>
+                        <View style={{height: (1.3/9.0)*Dimensions.get('screen').height}}/>
                     </ScrollView>
                     </View>
                 </LinearGradient>

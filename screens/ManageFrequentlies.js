@@ -1,5 +1,5 @@
 import React from "react";
-import { View, TextInput, StyleSheet, Dimensions, Animated, Keyboard, TouchableWithoutFeedback, AsyncStorage, Text, RefreshControl, ImageBackground, Image, Modal, ScrollView, Platform } from 'react-native'
+import { View, TextInput, StyleSheet, Dimensions, Animated, Keyboard, TouchableWithoutFeedback, AsyncStorage, Text, RefreshControl, ImageBackground, Image, Modal, ScrollView, Platform, Alert } from 'react-native'
 import { Button, Icon, Card, Divider, colors, Header } from 'react-native-elements'
 import { FontAwesome, Entypo, AntDesign, MaterialIcons, MaterialCommunityIcons, FontAwesome5, Ionicons, } from '@expo/vector-icons'
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
@@ -9,8 +9,12 @@ import FrequentlyInfoModal from '../modals/FrequentlyInfo'
 import { withNavigation } from "react-navigation";
 import { categories } from '../assets/constants/categories'
 import { LinearGradient } from 'expo-linear-gradient';
-import {TouchableOpacity} from 'react-native-gesture-handler'
+import { TouchableOpacity } from 'react-native-gesture-handler'
 import EditFrequentlyModal from '../modals/EditFrequently'
+import FiltersModal from '../modals/Filters'
+import ConfirmationModal from '../modals/Confirmation'
+
+
 
 class ManageFrequentliesScreen extends React.Component {
     constructor(props) {
@@ -20,8 +24,12 @@ class ManageFrequentliesScreen extends React.Component {
             createFrequentlyModalVisible: false,
             frequentlyInfoModalVisible: false,
             refreshing: false,
-            selectedFrequently:{},
-            editFrequentlyModalVisible:false
+            selectedFrequently: {},
+            editFrequentlyModalVisible: false,
+            filtersModalVisible: false,
+            filterCategories: [],
+            filterTypes: [],
+            confirmationModalVisible:false
         }
 
     }
@@ -40,6 +48,35 @@ class ManageFrequentliesScreen extends React.Component {
 
 
     }
+
+    deleteFrequently = async()=>{
+        let frequentlies = await AsyncStorage.getItem('frequentlies')
+        frequentlies = JSON.parse(frequentlies)
+        let location = -1
+        for (var i = 0; i < frequentlies.length; i++) {
+            if (this.equalIDs(frequentlies[i].id, this.state.selectedFrequently.id)) {
+                location=i
+                break
+            }
+        }
+        frequentlies.splice(location,1)
+        frequentlies = JSON.stringify(frequentlies)
+        await AsyncStorage.setItem('frequentlies', frequentlies)
+        this.props.screenProps.updateFrequentlies()
+        this.setState({confirmationModalVisible:false})
+    }
+
+    equalIDs = (x, y) => {
+        if (x.length !== y.length)
+            return false
+        for (var i = 0; i < x.length; i++) {
+            if (x[i] !== y[i])
+                return false
+        }
+        return true
+    }
+
+
 
     getFrequentlies = () => {
 
@@ -84,18 +121,46 @@ class ManageFrequentliesScreen extends React.Component {
             let colors = [this.props.screenProps.colors['textColor'], this.props.screenProps.colors['backColor']]
             categories.forEach(category => { if (frequently.category === category.name) colors = category.colors })
 
-            return (<TouchableOpacity key={frequently.title}  onPress={()=>
-                this.setState({selectedFrequently:frequently,editFrequentlyModalVisible:true})
+            let filterCategory = false
+            if (this.state.filterCategories.length === 0)
+                filterCategory = true
+            else
+                this.state.filterCategories.map(category => { if (category.label === frequently.category) { filterCategory = true } })
+
+            let filterType = false
+            if (this.state.filterTypes.length === 0)
+                filterType = true
+            else
+                this.state.filterTypes.map(type => { if (type.label === frequently.type) { filterType = true } })
+
+            let id = "";
+            for (var i = 0; i < 32; i++) {
+                id += frequently.id[i] + ','
             }
-         >
-                <Card containerStyle={styles.card}>
-                    <View style={{ flexDirection: 'row' }}>
-                        <LinearGradient colors={colors} style={styles.gradient} />
-                        <View>
-                            <Text style={styles.title}>{frequently.title}</Text>
-                            <Text style={styles.text}>{frequently.description}</Text>
-                        </View>
-                        {/* <View style={styles.type}>
+
+
+            if ((this.state.search === "" || frequently.title.search(this.state.search) !== -1) && filterCategory && filterType)
+
+                return (<TouchableOpacity key={id}
+                    onPress={() =>
+                        this.setState({ selectedFrequently: frequently, editFrequentlyModalVisible: true })
+                    }
+
+                    onLongPress = {()=>{this.setState({selectedFrequently:frequently,confirmationModalVisible:true})}}
+
+                >
+                    <Card containerStyle={styles.card}>
+                        <View style={{ flexDirection: 'row' }}>
+
+                            <LinearGradient colors={colors} style={styles.gradient} />
+
+
+
+                            <View>
+                                <Text style={styles.title}>{frequently.title}</Text>
+                                <Text style={styles.text}>{frequently.description}</Text>
+                            </View>
+                            {/* <View style={styles.type}>
                             <Text style={styles.typeText}>
                                 {frequently.type ==='Daily'?'D':null}
                                 {frequently.type ==='Weekly'?'W':null}
@@ -103,13 +168,101 @@ class ManageFrequentliesScreen extends React.Component {
                                 {frequently.type ==='Yearly'?'Y':null}
                             </Text>
                         </View> */}
+                        </View>
+                    </Card>
+                </TouchableOpacity>)
+        })
+    }
+
+    getCategoryFilters() {
+        return this.state.filterCategories.map(category => {
+            let colors = []
+            for (var i = 0; i < categories.length; i++) {
+                if (categories[i].name === category.label)
+                    colors = categories[i].colors
+            }
+            const styles = StyleSheet.create({
+                button: {
+                    borderRadius: 10,
+                    height: 0.04 * Dimensions.get('screen').height > 25 ? 25 : 0.04 * Dimensions.get('screen').height,
+                    margin: 0.006 * Dimensions.get('screen').height > 3 ? 3 : 0.006 * Dimensions.get('screen').height,
+
+                },
+                text: {
+                    color: this.props.screenProps.colors['textColor'],
+                    textShadowColor: this.props.screenProps.colors['backColor'],
+                    textShadowRadius: 2,
+                    fontFamily: this.props.screenProps.fontFamily,
+                    padding: 0.012 * Dimensions.get('screen').width > 2 ? 2 : 0.012 * Dimensions.get('screen').width,
+                }
+            })
+            return <TouchableOpacity style={styles.button} key={category.label} onPress={() => {
+                let categoryFilters = this.state.filterCategories
+                let x = 0
+                for (var i = 0; i < categoryFilters.length; i++) {
+                    if (categoryFilters[i].label === category.label) {
+                        x = i
+                        break
+                    }
+                }
+                categoryFilters.splice(x, 1)
+                this.setState({ filterCategories: categoryFilters })
+            }}>
+                <LinearGradient style={styles.button} colors={colors}>
+                    <View style={{ flexDirection: 'row' }}>
+
+                        <Text style={styles.text}>{category.label}</Text>
+                        <MaterialIcons name={'remove-circle-outline'} color={this.props.screenProps.colors['textColor']} style={{ paddingTop: 0.012 * Dimensions.get('screen').height > 6 ? 6 : 0.012 * Dimensions.get('screen').height, paddingRight: 0.024 * Dimensions.get('screen').width > 4 ? 4 : 0.024 * Dimensions.get('screen').width }} />
                     </View>
-                </Card>
-            </TouchableOpacity>)
+                </LinearGradient>
+            </TouchableOpacity>
+        })
+    }
+
+    getTypesFilters() {
+        return this.state.filterTypes.map(type => {
+            let colors = ['orange', this.props.screenProps.colors['themeColor']]
+
+            const styles = StyleSheet.create({
+                button: {
+                    borderRadius: 10,
+                    height: 0.04 * Dimensions.get('screen').height > 25 ? 25 : 0.04 * Dimensions.get('screen').height,
+                    margin: 0.006 * Dimensions.get('screen').height > 3 ? 3 : 0.006 * Dimensions.get('screen').height,
+
+                },
+                text: {
+                    color: this.props.screenProps.colors['textColor'],
+                    textShadowColor: this.props.screenProps.colors['backColor'],
+                    textShadowRadius: 2,
+                    fontFamily: this.props.screenProps.fontFamily,
+                    padding: 0.012 * Dimensions.get('screen').width > 2 ? 2 : 0.012 * Dimensions.get('screen').width,
+                }
+            })
+            return <TouchableOpacity style={styles.button} key={type.label} onPress={() => {
+                let typeFilters = this.state.filterTypes
+                let x = 0
+                for (var i = 0; i < typeFilters.length; i++) {
+                    if (typeFilters[i].label === type.label) {
+                        x = i
+                        break
+                    }
+                }
+                typeFilters.splice(x, 1)
+                this.setState({ filterTypes: typeFilters })
+            }}>
+                <LinearGradient style={styles.button} colors={colors}>
+                    <View style={{ flexDirection: 'row' }}>
+
+                        <Text style={styles.text}>{type.label}</Text>
+                        <MaterialIcons name={'remove-circle-outline'} color={this.props.screenProps.colors['textColor']} style={{ paddingTop: 0.012 * Dimensions.get('screen').height > 6 ? 6 : 0.012 * Dimensions.get('screen').height, paddingRight: 0.024 * Dimensions.get('screen').width > 4 ? 4 : 0.024 * Dimensions.get('screen').width }} />
+                    </View>
+                </LinearGradient>
+            </TouchableOpacity>
         })
     }
 
     
+
     render() {
 
         const styles = StyleSheet.create({
@@ -134,8 +287,8 @@ class ManageFrequentliesScreen extends React.Component {
                 maxHeight: 90,
                 flexDirection: 'row',
                 justifyContent: 'center',
-                borderBottomWidth:2,
-                borderBottomColor:this.props.screenProps.colors["themeColor"]
+                borderBottomWidth: 2,
+                borderBottomColor: this.props.screenProps.colors["themeColor"]
             },
             title: {
                 fontSize: 0.05 * Dimensions.get('screen').width > 35 ? 35 : 0.05 * Dimensions.get('screen').width,
@@ -144,7 +297,7 @@ class ManageFrequentliesScreen extends React.Component {
                 paddingBottom: 0.01 * Dimensions.get('screen').height > 15 ? 15 : 0.01 * Dimensions.get('screen').height,
             },
             titleSmallText: {
-                fontSize: 0.04 * Dimensions.get('screen').width > 20 ? 20 : 0.04 * Dimensions.get('screen').width,
+                fontSize: 0.03 * Dimensions.get('screen').width > 20 ? 20 : 0.03 * Dimensions.get('screen').width,
                 color: this.props.screenProps.colors["textColor"],
                 fontFamily: this.props.screenProps["fontFamily"],
                 paddingBottom: 0.01 * Dimensions.get('screen').height > 15 ? 15 : 0.01 * Dimensions.get('screen').height,
@@ -185,12 +338,18 @@ class ManageFrequentliesScreen extends React.Component {
                 fontFamily: this.props.screenProps["fontFamily"],
                 textAlign: 'center',
                 opacity: 0.6,
-                paddingTop: 0.3 * Dimensions.get('screen').height
+                paddingTop: 0.28 * Dimensions.get('screen').height
             },
             floatingButtonView: {
                 position: "relative",
                 bottom: Platform.OS === 'ios' ? 0.02 * Dimensions.get('screen').height > 20 ? 20 : 0.02 * Dimensions.get('screen').height : 0.08 * Dimensions.get('screen').height > 55 ? 55 : 0.08 * Dimensions.get('screen').height,
                 left: Dimensions.get('screen').width > 400 ? 0.88 * Dimensions.get('screen').width : 0.78 * Dimensions.get('screen').width
+            },
+            filterTitle: {
+                color: this.props.screenProps.colors['textColor'],
+                //paddingLeft: 0.05 * Dimensions.get('screen').width > 25 ? 25 : 0.05 * Dimensions.get('screen').width,
+                fontFamily: this.props.screenProps["fontFamily"],
+                fontSize: 0.03 * Dimensions.get('screen').height > 20 ? 20 : 0.03 * Dimensions.get('screen').height,
             }
         })
 
@@ -201,9 +360,9 @@ class ManageFrequentliesScreen extends React.Component {
 
                     <Header containerStyle={styles.titleCard}
                         centerComponent={<Text style={styles.title}>  Frequentlies</Text>}
-                        leftComponent={<TouchableOpacity  onPress={() => this.props.navigation.goBack()}>
+                        leftComponent={<TouchableOpacity onPress={() => this.props.navigation.goBack()}>
                             <View style={{ flexDirection: 'row' }} >
-                                <Ionicons name='ios-arrow-back' size={0.04 * Dimensions.get('screen').width > 20 ? 20 : 0.04 * Dimensions.get('screen').width} color={this.props.screenProps.colors["textColor"]} style={{ paddingTop: 0.005 * Dimensions.get('screen').height > 5 ? 5 : 0.005 * Dimensions.get('screen').height }} />
+                                <Ionicons name='ios-arrow-back' size={0.04 * Dimensions.get('screen').width > 20 ? 20 : 0.04 * Dimensions.get('screen').width} color={this.props.screenProps.colors["textColor"]} />
                                 <Text style={styles.titleSmallText}> Settings</Text>
                             </View>
                         </TouchableOpacity>}
@@ -215,11 +374,16 @@ class ManageFrequentliesScreen extends React.Component {
 
 
                     <View >
-                        <CreateFrequentlyModal colors={this.props.screenProps.colors} modalVisible={this.state.createFrequentlyModalVisible} closeModal={() => { this.setState({ createFrequentlyModalVisible: false }) }} mode={this.props.screenProps.mode} fontFamily={this.props.screenProps["fontFamily"]} updateFrequentlies={() => this.props.screenProps.updateFrequentlies()} />
+                        <CreateFrequentlyModal theme={this.props.screenProps.theme} colors={this.props.screenProps.colors} modalVisible={this.state.createFrequentlyModalVisible} closeModal={() => { this.setState({ createFrequentlyModalVisible: false }) }} mode={this.props.screenProps.mode} fontFamily={this.props.screenProps["fontFamily"]} updateFrequentlies={() => this.props.screenProps.updateFrequentlies()} />
 
-                        <FrequentlyInfoModal colors={this.props.screenProps.colors} modalVisible={this.state.frequentlyInfoModalVisible} closeModal={() => { this.setState({ frequentlyInfoModalVisible: false }) }} fontFamily={this.props.screenProps["fontFamily"]} />
+                        <FrequentlyInfoModal theme={this.props.screenProps.theme} colors={this.props.screenProps.colors} modalVisible={this.state.frequentlyInfoModalVisible} closeModal={() => { this.setState({ frequentlyInfoModalVisible: false }) }} mode={this.props.screenProps.mode} fontFamily={this.props.screenProps["fontFamily"]} />
 
-                        <EditFrequentlyModal colors={this.props.screenProps.colors} modalVisible={this.state.editFrequentlyModalVisible} closeModal={() => { this.setState({ editFrequentlyModalVisible: false }) }} fontFamily={this.props.screenProps["fontFamily"]} mode={this.props.screenProps.mode} selectedFrequently = {this.state.selectedFrequently} updateFrequentlies={() => this.props.screenProps.updateFrequentlies()}/>
+                        <FiltersModal theme={this.props.screenProps.theme} colors={this.props.screenProps.colors} modalVisible={this.state.filtersModalVisible} closeModal={() => { this.setState({ filtersModalVisible: false }) }} fontFamily={this.props.screenProps["fontFamily"]} mode={this.props.screenProps.mode} filterCategories={this.state.filterCategories} changeFilterCategories={(filterCategories) => { this.setState({ filterCategories: filterCategories }) }} filterTypes={this.state.filterTypes} changeFilterTypes={(filterTypes) => this.setState({ filterTypes: filterTypes })} />
+
+                        <EditFrequentlyModal theme={this.props.screenProps.theme} colors={this.props.screenProps.colors} modalVisible={this.state.editFrequentlyModalVisible} closeModal={() => { this.setState({ editFrequentlyModalVisible: false }) }} fontFamily={this.props.screenProps["fontFamily"]} mode={this.props.screenProps.mode} selectedFrequently={this.state.selectedFrequently} updateFrequentlies={() => this.props.screenProps.updateFrequentlies()} />
+                       
+                       <ConfirmationModal theme = {this.props.screenProps.theme} colors={this.props.screenProps.colors} modalVisible={this.state.confirmationModalVisible} closeModal={()=>{this.setState({confirmationModalVisible:false})}} leftAction={()=>{this.setState({confirmationModalVisible:false})}} leftText={'Cancel'} title={'Delete Frequenetly'} rightText={'Delete'} rightAction = {()=>this.deleteFrequently()} text={"Are you sure you want to delete this frequently?\n This can not be undone."}  fontFamily={this.props.screenProps["fontFamily"]} mode={this.props.screenProps.mode}/>
+                       
                         <View style={styles.textInputView}>
 
                             <FontAwesome name={'search'} size={0.1 * Dimensions.get('screen').width > 30 ? 30 : 0.1 * Dimensions.get('screen').width} color={this.props.screenProps.colors["textColor"]} />
@@ -228,9 +392,27 @@ class ManageFrequentliesScreen extends React.Component {
                         </View>
                     </View>
 
-                    <ScrollView contentContainerStyle={{ flex: 1 }} refreshControl={
+                    <View style={{ borderBottomColor: this.props.screenProps.colors['textColor'], borderBottomWidth: 1, width: 0.9 * Dimensions.get('screen').width, alignSelf: 'center' }}>
+
+                        <TouchableOpacity onPress={() => this.setState({ filtersModalVisible: true })}>
+
+                            <View style={{ flexDirection: "row", justifyContent: 'space-between' }}>
+
+                                <Text style={styles.filterTitle}>Filters</Text>
+                                <MaterialIcons name='filter-list' color={this.props.screenProps.colors['textColor']} size={0.1 * Dimensions.get('screen').width > 30 ? 30 : 0.1 * Dimensions.get('screen').width} />
+                            </View>
+                        </TouchableOpacity>
+                        <View style={{ flexDirection: "row", flexWrap: 'wrap', marginBottom: 0.0075 * Dimensions.get('screen').height > 5 ? 5 : 0.0075 * Dimensions.get('screen').height }}>
+
+                            {this.getCategoryFilters()}
+                            {this.getTypesFilters()}
+                        </View>
+                    </View>
+
+
+                    <ScrollView refreshControl={
                         <RefreshControl refreshing={this.state.refreshing} onRefresh={this.onRefresh} tintColor={this.props.screenProps.colors['textColor']} />
-                    }>
+                    } keyboardShouldPersistTaps={'handled'} onTouchStart={Keyboard.dismiss} >
                         {this.props.screenProps.frequentlies.length === 0 ? <Text style={styles.text}>{"It looks like a desert here\nGo create a Frequently now"}</Text> : this.getFrequentlies()}
                     </ScrollView >
                     <View style={styles.floatingButtonView}>
@@ -242,6 +424,7 @@ class ManageFrequentliesScreen extends React.Component {
                     </View>
 
                 </LinearGradient>
+
                 <View style={styles.navigator}></View>
             </View>
         )

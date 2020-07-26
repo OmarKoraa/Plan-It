@@ -3,33 +3,12 @@ import { View, TextInput, StyleSheet, Dimensions, Animated, Keyboard, TouchableW
 import { Button, Icon, Card, Divider } from 'react-native-elements'
 import { FontAwesome } from '@expo/vector-icons'
 
-
-class EditNameModal extends React.Component {
+class ConfirmationModal extends React.Component {
     constructor(props) {
-        super(props);
+        super(props)
         this.state = {
-            userName: "",
+
         }
-    }
-
-    async componentDidMount() {
-        await AsyncStorage.getItem("userName", (err, result) => {
-            if (result) {
-                this.setState({ userName: result })
-            }
-
-        })
-
-    }
-
-
-
-
-    save = async () => {
-        await AsyncStorage.removeItem("userName")
-        await AsyncStorage.setItem("userName", this.state.userName)
-
-        this.props.closeModal()
     }
 
     render() {
@@ -47,32 +26,16 @@ class EditNameModal extends React.Component {
 
             },
             titleText: {
-                fontSize: 0.025 * Dimensions.get('screen').height,
-                color: this.props.theme==='Focus'?this.props.colors['backColor']:'white',
+                fontSize: 0.025 * Dimensions.get('screen').height>20?20:0.025 * Dimensions.get('screen').height,
+                color: this.props.theme === 'Focus' ? this.props.colors['backColor'] : 'white',
                 fontFamily: this.props.fontFamily,
                 paddingTop: (1 / 80.0) * Dimensions.get('screen').height > 7 ? 7 : (1 / 80.0) * Dimensions.get('screen').height,
             },
-            TextInputStyle: {
-                textAlign: 'center',
-                height: 0.0625 * Dimensions.get('screen').height > 50 ? 50 : 0.0625 * Dimensions.get('screen').height,
-                borderRadius: 20,
-                borderWidth: 2,
-                borderColor: this.props.colors["textColor"],
-                width: 0.8 * Math.round(Dimensions.get('screen').width),
-                backgroundColor: '#00000000',
-                alignSelf: 'center',
-                color: this.props.colors["textColor"],
-                fontSize: 0.02875 * Dimensions.get('screen').height > 23 ? 23 : 0.02875 * Dimensions.get('screen').height,
-                borderWidth: 3,
-                borderColor: this.props.colors["textColor"],
-                fontFamily: this.props.fontFamily
-
-            },
-            smallText: {
-                fontSize: 0.018 * Dimensions.get('screen').height,
+            modalText: {
+                fontSize: 0.02 * Dimensions.get('screen').height > 15 ? 15 : 0.02 * Dimensions.get('screen').height,
                 fontFamily: this.props.fontFamily,
-                paddingTop: 0.015 * Dimensions.get('screen').height > 10 ? 10 : 0.015 * Dimensions.get('screen').height,
-                color: this.props.theme==='Focus'?this.props.colors['backColor']:'white'
+                color: this.props.theme === 'Focus' ? this.props.colors['backColor'] : 'white',
+                textAlign:'center'
             },
             titleView: {
                 flexDirection: "row",
@@ -87,11 +50,26 @@ class EditNameModal extends React.Component {
                 borderWidth: 1,
                 borderBottomWidth: 0,
                 borderColor: this.props.colors["textColor"],
+            },
+            button:{
+                width:0.3* Dimensions.get('screen').width,
+                marginTop:0.0175 * Dimensions.get('screen').height>15?15:0.0175 * Dimensions.get('screen').height,
+                borderRadius:20,
+                
+                backgroundColor: this.props.colors['themeColor'],
+                
+            },
+            buttonText:{
+                textAlign:'center',
+                color: this.props.theme === 'Focus' ? this.props.colors['backColor'] : this.props.colors['textColor'],
+                fontSize: 0.025 * Dimensions.get('screen').height>20?20:0.025 * Dimensions.get('screen').height,
+                
+                fontFamily :this.props.fontFamily,
+                
+                
             }
         })
-
         return (
-
             <Modal
                 animationType="slide"
                 transparent={true}
@@ -105,13 +83,19 @@ class EditNameModal extends React.Component {
 
 
                 <View style={styles.titleView}>
-                    <TouchableHighlight onPress={this.props.closeModal} activeOpacity={1} underlayColor={'#00000000'} ><Text style={styles.smallText}>Close</Text></TouchableHighlight>
-                    <Text style={styles.titleText}>Change Name</Text>
-                    <TouchableHighlight onPress={this.save} activeOpacity={1} underlayColor={'#00000000'} ><Text style={styles.smallText}>Save</Text></TouchableHighlight>
+                    <Text style={styles.titleText}>{this.props.title}</Text>
                 </View>
                 <Card containerStyle={styles.card}>
 
-                    <TextInput style={styles.TextInputStyle} placeholder='Your Name ;)' value={this.state.userName} onChangeText={text => { this.setState({ userName: text }) }} keyboardAppearance={this.props.mode} placeholderTextColor={this.props.colors["textColor"] + '88'} autoFocus={true}></TextInput>
+                   <Text style={styles.modalText}>{this.props.text}</Text>
+                   <View style={{flexDirection:'row',justifyContent:'space-evenly'}}> 
+                   <TouchableHighlight activeOpacity={1} underlayColor={'#00000000'} onPress={()=>this.props.leftAction()} style={styles.button}>
+                       <Text style={styles.buttonText}>{this.props.leftText}</Text>
+                   </TouchableHighlight>
+                   <TouchableHighlight  activeOpacity={1} underlayColor={'#00000000'} onPress={()=>this.props.rightAction()} style={styles.button}>
+                       <Text style={styles.buttonText}>{this.props.rightText}</Text>
+                   </TouchableHighlight>
+                   </View>
                 </Card>
 
 
@@ -121,11 +105,9 @@ class EditNameModal extends React.Component {
 
 
 
-            </Modal>
+            </Modal>)
 
-        )
     }
 }
 
-
-export default EditNameModal
+export default ConfirmationModal
