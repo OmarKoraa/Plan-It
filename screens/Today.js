@@ -6,12 +6,17 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { LinearGradient } from 'expo-linear-gradient';
 import { quotes } from '../assets/constants/quotes'
+import DiaryModal from '../modals/Diary' 
 
 class TodayScreen extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
-            today: {},
+            today: {
+                diaryColors:[]
+            },
+            diaryModalVisible:false,
+            
         }
 
     }
@@ -24,8 +29,6 @@ class TodayScreen extends React.Component {
         let todayDate = "" + day + "/" + month + "/" + year
 
         await this.refreshDay(todayDate)
-
-
     }
 
     refreshDay = async (todayDate) => {
@@ -44,6 +47,14 @@ class TodayScreen extends React.Component {
 
         if(!today.date){
             today['date']=todayDate
+        }
+
+        if(!today.diary){
+            today['diary']=''
+        }
+
+        if(!today.diaryColors){
+            today['diaryColors']=[]
         }
         
         this.setState({today:today})
@@ -105,6 +116,16 @@ class TodayScreen extends React.Component {
 
     }
 
+    saveDiaryColors= async (colors)=>{
+        console.log(colors)
+        let today = this.state.today
+        today['diaryColors'] = colors
+        this.setState({today:today})
+        console.log(this.state.today)
+        await this.saveDay()
+
+    }
+
 
     render() {
        
@@ -151,7 +172,7 @@ class TodayScreen extends React.Component {
             },
             titleText: {
                 fontSize: 0.03 * Dimensions.get('screen').height,
-                color: this.props.screenProps.theme === 'Focus' ? this.props.screenProps.colors['backColor'] : this.props.screenProps.colors['textColor'],
+                color: this.props.screenProps.theme === 'Focus' ? this.props.screenProps.colors['backColor'] : '#ffffff',
                 fontFamily: this.props.screenProps.fontFamily,
                 paddingTop: (1 / 80.0) * Dimensions.get('screen').height > 7 ? 7 : (1 / 80.0) * Dimensions.get('screen').height,
                 paddingLeft: (2 / 10.0) * Dimensions.get('screen').width > 16 ? 16 : (2 / 10.0) * Dimensions.get('screen').width,
@@ -174,9 +195,29 @@ class TodayScreen extends React.Component {
                 borderTopWidth: 0,
 
             },
+            diary:{
+                fontSize: 0.02 * Dimensions.get('screen').height,
+                color: this.props.screenProps.colors['textColor'],
+                fontFamily: this.props.screenProps.fontFamily,
+                opacity: this.state.today.diary===''?0.5:1,
+                textAlign:this.state.today.diary!==''?'auto':'center',
+                paddingHorizontal:(2 / 10.0) * Dimensions.get('screen').width > 16 ? 16 : (2 / 10.0) * Dimensions.get('screen').width,
+                paddingVertical: (2 / 80.0) * Dimensions.get('screen').height > 14 ? 14 : (2 / 80.0) * Dimensions.get('screen').height,
+            },
+            diaryBody:{
+                width: 0.9 * Dimensions.get('screen').width,
+                borderBottomLeftRadius: 25,
+                borderBottomRightRadius: 25,
+                borderColor: this.state.today.diaryColors.length===0? this.props.screenProps.colors["backColor"]:this.state.today.diaryColors[0],
+                borderWidth:1,
+                borderTopWidth: 0,
+                alignSelf: 'center',
+                overflow:'hidden'
+                
+            }
         })
         return (<View style={styles.fullscreen}>
-            <LinearGradient colors={[this.props.screenProps.colors['backColor'], this.props.screenProps.colors['themeColor']]} style={{ height: (8 / 9.0) * Dimensions.get('screen').height, }}>
+            <LinearGradient  colors={[this.props.screenProps.colors['backColor'], this.props.screenProps.colors['themeColor']]} style={{ height: (8 / 9.0) * Dimensions.get('screen').height, }} >
 
                 <Card containerStyle={styles.titleCard}>
                     <Text style={styles.title}>Today</Text>
@@ -191,6 +232,23 @@ class TodayScreen extends React.Component {
                             <Text style={styles.quote}>{this.state.today.quote}</Text>
                         </Card>
                     </View>
+                    <View>
+
+                        <View style={[styles.titleView,{flexDirection:'row',justifyContent:'space-between',marginBottom:0,borderColor:this.state.today.diaryColors.length===0? this.props.screenProps.colors["backColor"]:this.state.today.diaryColors[0],}]}>
+                            <Text style={styles.titleText}>Diary</Text>
+                            <TouchableOpacity onPress={()=>this.setState({diaryModalVisible:true})}>
+
+                            <MaterialCommunityIcons name='notebook-multiple'  color={this.props.screenProps.theme === 'Focus' ? this.props.screenProps.colors['backColor'] : '#ffffff'} size = {0.08 * Dimensions.get('screen').width > 24 ? 24 : 0.08 * Dimensions.get('screen').width} style={{paddingRight:0.05 * Dimensions.get('screen').width > 15 ? 15 : 0.15 * Dimensions.get('screen').width,paddingTop:(1.75 / 80.0) * Dimensions.get('screen').height > 12 ? 12 : (1.75 / 80.0) * Dimensions.get('screen').height}}/>
+                            </TouchableOpacity>
+                        </View>
+                        <View style={styles.diaryBody}>
+                        <LinearGradient  start={[0.0, 0.0]} end={[1.0, 1.0]} colors={this.state.today.diaryColors.length===0?[this.props.screenProps.colors['backColor'],this.props.screenProps.colors['backColor']]:this.state.today.diaryColors}>
+                            <Text style={styles.diary}>{this.state.today.diary!==''?this.state.today.diary:"You haven't written anything about today :("}</Text>
+                        </LinearGradient>
+                        </View>
+                    </View>
+
+                    <DiaryModal theme = {this.props.screenProps.theme} mode={this.props.screenProps.mode} colors={this.props.screenProps.colors} fontFamily={this.props.screenProps.fontFamily} modalVisible={this.state.diaryModalVisible} closeModal={()=>this.setState({diaryModalVisible:false})} diary={this.state.today.diary} saveDiary={(diary)=>{let today = this.state.today; today['diary']=diary;this.setState({today:today,diaryModalVisible:false});this.saveDay()}} diaryColors={this.state.today.diaryColors} saveDiaryColors={this.saveDiaryColors}/>
                 </ScrollView>
             </LinearGradient>
             <View style={styles.navigator}></View>
