@@ -34,7 +34,7 @@ class ConfirmationModal extends React.Component {
             modalText: {
                 fontSize: 0.02 * Dimensions.get('screen').height > 15 ? 15 : 0.02 * Dimensions.get('screen').height,
                 fontFamily: this.props.fontFamily,
-                color: this.props.theme === 'Focus' ? this.props.colors['backColor'] : 'white',
+                color:  this.props.colors['textColor'], 
                 textAlign:'center'
             },
             titleView: {
@@ -61,7 +61,7 @@ class ConfirmationModal extends React.Component {
             },
             buttonText:{
                 textAlign:'center',
-                color: this.props.theme === 'Focus' ? this.props.colors['backColor'] : this.props.colors['textColor'],
+                color: this.props.theme === 'Focus' ? this.props.colors['backColor'] : '#ffffff',
                 fontSize: 0.025 * Dimensions.get('screen').height>20?20:0.025 * Dimensions.get('screen').height,
                 
                 fontFamily :this.props.fontFamily,
