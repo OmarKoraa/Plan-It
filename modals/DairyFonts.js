@@ -1,44 +1,75 @@
 import React from "react";
-import { View, TextInput, StyleSheet, Dimensions, Animated, Keyboard, TouchableWithoutFeedback, AsyncStorage, Text, ImageBackground, Image, Modal, TouchableHighlight } from 'react-native'
+import { View, TextInput, StyleSheet, Dimensions, Animated, Keyboard, TouchableWithoutFeedback, AsyncStorage, Text, ImageBackground, Image, Modal, TouchableHighlight, Platform } from 'react-native'
 import { Button, Icon, Card, Divider } from 'react-native-elements'
-import { FontAwesome, MaterialCommunityIcons,Ionicons } from '@expo/vector-icons'
-import { diaryColors } from '../assets/constants/diaryColors'
+import { FontAwesome, MaterialCommunityIcons, Ionicons } from '@expo/vector-icons'
+import { iosFonts,andriodFonts } from '../assets/constants/fonts'
 import { LinearGradient } from "expo-linear-gradient";
+import { ScrollView } from "react-native-gesture-handler";
 
-class DiaryColorsModal extends React.Component {
+class DiaryFontsModal extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            
+
         }
     }
 
 
 
-    getColors = () => {
-        return diaryColors.map((color, index) => {
-            const styles = StyleSheet.create({
-                color: {
-                    width: 0.09 * Dimensions.get('screen').width,
-                    height: 0.09 * Dimensions.get('screen').width,
-                    borderRadius: 0.045 * Dimensions.get('screen').width,
-                    borderColor: this.props.colors["textColor"],
-                    borderWidth: 2,
+    getFonts = () => {
+        if (Platform.OS === 'ios')
+            return iosFonts.map((font, index) => {
+                const styles = StyleSheet.create({
 
-                },
-                button: {
-                    paddingHorizontal: 0.01 * Dimensions.get('screen').width,
-                    paddingVertical: 0.01 * Dimensions.get('screen').height,
-                    borderRadius: 0.045 * Dimensions.get('screen').width,
-                }
-            })
-            
+                    button: {
+                        paddingHorizontal: 0.01 * Dimensions.get('screen').width,
+                        paddingVertical: 0.01 * Dimensions.get('screen').height,
+                        borderRadius: 0.045 * Dimensions.get('screen').width,
+                        alignSelf: 'center'
+                    },
+                    text: {
+                        fontFamily: font,
+                        color: this.props.colors["textColor"],
+                        fontSize: 0.025 * Dimensions.get('screen').height > 20 ? 20 : 0.025 * Dimensions.get('screen').height,
+
+                    }
+                })
+
+            //console.log(font)
+
                 return (
-                    <TouchableHighlight key={index} style={styles.button} onPress={() => { this.props.selectColorFromList(color) }} underlayColor={this.props.colors['modalBackColor']}>
-                        <LinearGradient  start={[0.0, 0.0]} end={[1.0, 1.0]} style={styles.color} colors={color} />
+                    <TouchableHighlight key={index} style={styles.button} onPress={()=>{this.props.saveDiaryFont(font);this.props.closeModal()} } >
+                        <Text style={styles.text}>{font}</Text>
                     </TouchableHighlight>
                 )
-        })
+            })
+        else{
+            return andriodFonts.map((font, index) => {
+                const styles = StyleSheet.create({
+
+                    button: {
+                        paddingHorizontal: 0.01 * Dimensions.get('screen').width,
+                        paddingVertical: 0.01 * Dimensions.get('screen').height,
+                        borderRadius: 0.045 * Dimensions.get('screen').width,
+                        alignSelf: 'center'
+                    },
+                    text: {
+                        fontFamily: font,
+                        color: this.props.colors["textColor"],
+                        fontSize: 0.025 * Dimensions.get('screen').height > 20 ? 20 : 0.25 * Dimensions.get('screen').height,
+
+                    }
+                })
+
+            //console.log(font)
+
+                return (
+                    <TouchableHighlight key={index} style={styles.button} onPress={()=>{this.props.saveDiaryFont(font);this.props.closeModal()} } >
+                        <Text style={styles.text}>{font}</Text>
+                    </TouchableHighlight>
+                )
+            })
+        }    
     }
 
 
@@ -49,25 +80,6 @@ class DiaryColorsModal extends React.Component {
                 color: this.props.theme === 'Focus' ? this.props.colors['backColor'] : 'white',
                 fontFamily: this.props.fontFamily,
                 paddingTop: (0.5 / 80.0) * Dimensions.get('screen').height > 3.5 ? 3.5 : (0.5 / 80.0) * Dimensions.get('screen').height,
-            },
-            TextInputStyle: {
-                textAlign: 'center',
-                minHeight: 0.6 * Dimensions.get('screen').height,
-                maxHeight: 0.6 * Dimensions.get('screen').height,
-                borderRadius: 10,
-                borderWidth: 2,
-                borderColor: this.props.colors["textColor"],
-                width: 0.8 * Math.round(Dimensions.get('screen').width),
-                backgroundColor: '#00000000',
-                alignSelf: 'center',
-                color: this.props.colors["textColor"],
-                fontSize: 0.02 * Dimensions.get('screen').height > 16 ? 16 : 0.02 * Dimensions.get('screen').height,
-                borderWidth: 3,
-                borderColor: this.props.colors["textColor"],
-                fontFamily: this.props.fontFamily,
-
-
-
             },
             smallText: {
                 fontSize: 0.018 * Dimensions.get('screen').height,
@@ -89,24 +101,7 @@ class DiaryColorsModal extends React.Component {
                 borderBottomWidth: 0,
                 borderColor: this.props.colors["textColor"],
             },
-            colorsContainer: {
-                flexDirection: 'row',
-                marginBottom: 0.015 * Dimensions.get('screen').height > 10 ? 10 : 0.015 * Dimensions.get('screen').height,
-                paddingTop: 0.025 * Dimensions.get('screen').height > 20 ? 20 : 0.025 * Dimensions.get('screen').height,
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexWrap:'wrap'
-            },
-            color: {
-                width: 0.09 * Dimensions.get('screen').width,
-                height: 0.09 * Dimensions.get('screen').width,
-                borderRadius: 0.045 * Dimensions.get('screen').width,
-                borderColor: this.props.colors["textColor"],
-                borderWidth: 2,
-                
-
-
-            },
+    
             button: {
                 paddingHorizontal: 0.01 * Dimensions.get('screen').width,
                 borderRadius: 0.045 * Dimensions.get('screen').width,
@@ -129,6 +124,7 @@ class DiaryColorsModal extends React.Component {
                 borderBottomRightRadius: 25,
                 borderColor: this.props.colors["textColor"],
                 borderTopWidth: 0,
+                height:0.5 * Dimensions.get('screen').height
 
             },
         })
@@ -149,27 +145,26 @@ class DiaryColorsModal extends React.Component {
 
                 <View style={styles.titleView}>
                     <TouchableHighlight onPress={() => this.props.closeModal()} activeOpacity={1} underlayColor={'#00000000'} ><Text style={styles.smallText}>Close</Text></TouchableHighlight>
-                    <Text style={styles.titleText}>Select Color</Text>
-                    <TouchableHighlight  activeOpacity={1} underlayColor={'#00000000'} ><Text style={styles.smallText}>    </Text></TouchableHighlight>
+                    <Text style={styles.titleText}>Select Font</Text>
+                    <TouchableHighlight activeOpacity={1} underlayColor={'#00000000'} ><Text style={styles.smallText}>    </Text></TouchableHighlight>
                 </View>
 
 
 
                 <Card containerStyle={styles.card}>
+                    <ScrollView>
 
-                
-
-
-                    <View style={styles.colorsContainer}>
-                        <TouchableHighlight style={styles.button} onPress={() => { this.props.selectColorFromList([]) }} underlayColor={this.props.colors['modalBackColor']}>
-                            <MaterialCommunityIcons name={'cancel'} color={this.props.colors['textColor']} size={0.11 * Dimensions.get('screen').width} />
-                        </TouchableHighlight>
-                        {this.getColors()}
-                        
-                    </View>
+                        {this.getFonts()}
+                    </ScrollView>
 
 
-              </Card>
+
+
+
+
+
+
+                </Card>
 
 
 
@@ -187,4 +182,4 @@ class DiaryColorsModal extends React.Component {
 }
 
 
-export default DiaryColorsModal
+export default DiaryFontsModal

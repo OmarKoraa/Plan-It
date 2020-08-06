@@ -1,10 +1,19 @@
 import React from "react";
-import { View, TextInput, StyleSheet, Dimensions, Animated, Keyboard, TouchableWithoutFeedback, AsyncStorage, Text, ImageBackground, Image, Modal, TouchableHighlight } from 'react-native'
+import { View, TextInput, StyleSheet, Dimensions, Animated, Keyboard, TouchableWithoutFeedback, AsyncStorage, Text, ImageBackground, Image, Modal, TouchableHighlight ,ScrollView} from 'react-native'
 import { Button, Icon, Card, Divider } from 'react-native-elements'
 import { FontAwesome, MaterialCommunityIcons, Ionicons } from '@expo/vector-icons'
 import { diaryColors } from '../assets/constants/diaryColors'
 import { LinearGradient } from "expo-linear-gradient";
 import DiaryColorsModal from '../modals/DiaryColors'
+import DiaryFontsModal from '../modals/DairyFonts'
+import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
+
+
+
+
+import ConfirmationModal from '../modals/Confirmation'
+
 
 class DiaryModal extends React.Component {
     constructor(props) {
@@ -13,7 +22,11 @@ class DiaryModal extends React.Component {
             diary: this.props.diary,
             justOpened: false,
             diaryFrequentColors: [],
-            diaryColorsModalVisible: false
+            diaryColorsModalVisible: false,
+            diaryFontsModalVisible: false,
+            image:this.props.base64,
+            confirmationModalVisible:false
+
         }
     }
 
@@ -29,6 +42,12 @@ class DiaryModal extends React.Component {
             diaryFrequentColors = JSON.parse(diaryFrequentColors)
             this.setState({ diaryFrequentColors: diaryFrequentColors })
         }
+
+        
+
+        
+
+
     }
 
     componentDidUpdate() {
@@ -37,6 +56,12 @@ class DiaryModal extends React.Component {
         }
         if (!this.props.modalVisible && this.state.justOpened) {
             this.setState({ justOpened: false })
+        }
+        if(!this.state.image&&this.props.image){
+            this.setState({image:this.props.image})
+        }
+        if(!this.props.image&&this.state.image&&!this.state.justOpened){
+            this.setState({image:null})
         }
     }
 
@@ -71,7 +96,7 @@ class DiaryModal extends React.Component {
             if (index < 5) {
                 return (
                     <TouchableHighlight key={index} style={styles.button} onPress={() => { this.selectColorFromList(color) }} underlayColor={this.props.colors['modalBackColor']}>
-                        <LinearGradient  start={[0.0, 0.0]} end={[1.0, 1.0]} style={styles.color} colors={color} />
+                        <LinearGradient start={[0.0, 0.0]} end={[1.0, 1.0]} style={styles.color} colors={color} />
                     </TouchableHighlight>
                 )
             }
@@ -99,7 +124,7 @@ class DiaryModal extends React.Component {
             }
         }
 
-        this.setState({ diaryFrequentColors: diaryFrequentColors,diaryColorsModalVisible:false })
+        this.setState({ diaryFrequentColors: diaryFrequentColors, diaryColorsModalVisible: false })
         diaryFrequentColors = JSON.stringify(diaryFrequentColors)
 
         await AsyncStorage.setItem('diaryFrequentColors', diaryFrequentColors)
@@ -108,8 +133,42 @@ class DiaryModal extends React.Component {
         this.props.saveDiaryColors(color)
     }
 
+    
+    openImagePickerAsync = async () => {
+        let permissionResult = await ImagePicker.requestCameraRollPermissionsAsync();
+
+        if (permissionResult.granted === false) {
+            alert('Permission to access camera roll is required!');
+            return;
+        }
+
+        let pickerResult = await ImagePicker.launchImageLibraryAsync({ base64: true });
+        if (pickerResult.cancelled === true) {
+            return;
+        }
+
+        this.setState({image:pickerResult.base64})
 
 
+
+
+    };
+
+    removeImage=async ()=>{
+        let today = new Date()
+        let day = today.getDate()
+        let month = today.getMonth() + 1
+        let year = today.getFullYear()
+        let todayDate = "" + day + "-" + month + "-" + year
+
+        let checkImage = await FileSystem.getInfoAsync(FileSystem.documentDirectory + 'images/' + todayDate)
+
+        if (checkImage.exists) {
+            await FileSystem.deleteAsync(FileSystem.documentDirectory + 'images/' + todayDate)   
+        }
+        this.props.removeImage()
+        this.setState({ image: null,confirmationModalVisible:false })
+    }
 
     render() {
         const styles = StyleSheet.create({
@@ -121,10 +180,9 @@ class DiaryModal extends React.Component {
             },
             TextInputStyle: {
                 textAlign: 'center',
-                minHeight: 0.6 * Dimensions.get('screen').height,
-                maxHeight: 0.6 * Dimensions.get('screen').height,
+                minHeight: 0.4 * Dimensions.get('screen').height,
+                maxHeight: 0.4 * Dimensions.get('screen').height,
                 borderRadius: 10,
-                borderWidth: 2,
                 borderColor: this.props.colors["textColor"],
                 width: 0.8 * Math.round(Dimensions.get('screen').width),
                 backgroundColor: '#00000000',
@@ -133,8 +191,9 @@ class DiaryModal extends React.Component {
                 fontSize: 0.02 * Dimensions.get('screen').height > 16 ? 16 : 0.02 * Dimensions.get('screen').height,
                 borderWidth: 3,
                 borderColor: this.props.colors["textColor"],
-                fontFamily: this.props.fontFamily,
-
+                fontFamily: this.props.diaryFont === "" ? this.props.fontFamily : this.props.diaryFont,
+                marginTop: 0.02 * Dimensions.get('screen').height > 16 ? 16 : 0.02 * Dimensions.get('screen').height,
+                textAlignVertical: 'top'
 
 
             },
@@ -174,7 +233,7 @@ class DiaryModal extends React.Component {
 
 
             },
-            button: {
+            colorButton: {
                 paddingHorizontal: 0.01 * Dimensions.get('screen').width,
                 borderRadius: 0.045 * Dimensions.get('screen').width,
             },
@@ -182,11 +241,43 @@ class DiaryModal extends React.Component {
 
                 width: 0.9 * Dimensions.get('screen').width,
                 alignSelf: 'center',
-                height: 0.8 * Dimensions.get('screen').height,
+                height: 0.9 * Dimensions.get('screen').height,
                 borderColor: this.props.colors["textColor"],
                 borderTopWidth: 0,
                 borderWidth: 1
+            },
+            fontButton: {
+                marginBottom: 0.025 * Dimensions.get('screen').height > 20 ? 20 : 0.025 * Dimensions.get('screen').height,
+                alignSelf: 'center'
+            },
+            font: {
+                fontFamily: this.props.diaryFont === '' ? this.props.fontFamily : this.props.diaryFont,
+                color: this.props.colors["textColor"],
+                fontSize: 0.025 * Dimensions.get('screen').height > 20 ? 20 : 0.025 * Dimensions.get('screen').height,
+            },
+            emptyImage: {
+                maxHeight: 0.2 * Dimensions.get('screen').height,
+                borderColor: this.props.colors["textColor"],
+                borderWidth: 3,
+                borderRadius: 10,
+                width: 0.8 * Dimensions.get('screen').width,
+                alignSelf: 'center',
+                borderStyle: 'dashed', flex: 1, justifyContent: "center", alignItems: "center"
+            },
+            image: {
+                width: 0.8 * Dimensions.get('screen').width,
+                height: 0.2* Dimensions.get('screen').height,
+                alignSelf: 'center',
+                resizeMode: 'contain'
+            },
+            emptyImageText: {
+                fontFamily: this.props.diaryFont === '' ? this.props.fontFamily : this.props.diaryFont,
+                color: this.props.colors["textColor"],
+                fontSize: 0.02 * Dimensions.get('screen').height > 17 ? 17 : 0.02 * Dimensions.get('screen').height,
+                alignSelf: 'center',
             }
+
+
         })
 
         return (
@@ -197,7 +288,7 @@ class DiaryModal extends React.Component {
                 visible={this.props.modalVisible}
 
             >
-                <TouchableHighlight activeOpacity={1} underlayColor={'#00000000'} style={{ backgroundColor: 'transparent', height: 0.22 * Dimensions.get('screen').height }} onPress={() => this.props.closeModal()} >
+                <TouchableHighlight activeOpacity={1} underlayColor={'#00000000'} style={{ backgroundColor: 'transparent', height: 0.1 * Dimensions.get('screen').height }} onPress={() => this.props.closeModal()} >
                     <View />
                 </TouchableHighlight>
 
@@ -206,31 +297,52 @@ class DiaryModal extends React.Component {
                 <View style={styles.titleView}>
                     <TouchableHighlight onPress={() => this.props.closeModal()} activeOpacity={1} underlayColor={'#00000000'} ><Text style={styles.smallText}>Close</Text></TouchableHighlight>
                     <Text style={styles.titleText}>Diary</Text>
-                    <TouchableHighlight onPress={() => this.props.saveDiary(this.state.diary)} activeOpacity={1} underlayColor={'#00000000'} ><Text style={styles.smallText}>Save</Text></TouchableHighlight>
+                    <TouchableHighlight onPress={() => this.props.saveDiary(this.state.diary,this.state.image)} activeOpacity={1} underlayColor={'#00000000'} ><Text style={styles.smallText}>Save</Text></TouchableHighlight>
                 </View>
 
+                <ConfirmationModal theme = {this.props.theme} colors={this.props.colors} modalVisible={this.state.confirmationModalVisible} closeModal={()=>{this.setState({confirmationModalVisible:false})}} leftAction={()=>{this.setState({confirmationModalVisible:false})}} leftText={'Cancel'} title={'Delete Image'} rightText={'Delete'} rightAction = {()=>this.removeImage()} text={"Are you sure you want to delete this image?\n This can not be undone."}  fontFamily={this.props["fontFamily"]} mode={this.props.mode}/>
 
 
-                <LinearGradient  start={[0.0, 0.0]} end={[1.0, 1.0]} style={styles.body} colors={this.props.diaryColors.length === 0 ? [this.props.colors['backColorModal'], this.props.colors['backColorModal']] : this.props.diaryColors} >
 
+                {/* <ScrollView style={{height:0.9 * Dimensions.get('screen').height}}> */}
+
+                <LinearGradient start={[0.0, 0.0]} end={[1.0, 1.0]} style={styles.body} colors={this.props.diaryColors.length === 0 ? [this.props.colors['backColorModal'], this.props.colors['backColorModal']] : this.props.diaryColors} >
+
+                    <TextInput style={styles.TextInputStyle} placeholder={"\nNothing happened to you today?\nImpossible"} value={this.state.diary} onChangeText={text => { this.setState({ diary: text }) }} keyboardAppearance={this.props.mode} placeholderTextColor={this.props.colors["textColor"] + '88'} multiline scrollEnabled></TextInput>
                     <DiaryColorsModal theme={this.props.theme} mode={this.props.mode} colors={this.props.colors} fontFamily={this.props.fontFamily} modalVisible={this.state.diaryColorsModalVisible} closeModal={() => { this.setState({ diaryColorsModalVisible: false }) }} selectColorFromList={(color) => { this.selectColorFromList(color) }} />
+                    <DiaryFontsModal theme={this.props.theme} mode={this.props.mode} colors={this.props.colors} fontFamily={this.props.fontFamily} modalVisible={this.state.diaryFontsModalVisible} closeModal={() => { this.setState({ diaryFontsModalVisible: false }) }} diaryFont={this.props.diaryFont} saveDiaryFont={(font) => { this.props.saveDiaryFont(font) }} />
 
 
                     <View style={styles.colorsContainer}>
-                        <TouchableHighlight style={styles.button} onPress={() => { this.props.saveDiaryColors([]) }} underlayColor={this.props.colors['modalBackColor']}>
+                        <TouchableHighlight style={styles.colorButton} onPress={() => { this.props.saveDiaryColors([]) }} underlayColor={this.props.colors['modalBackColor']}>
                             <MaterialCommunityIcons name={'cancel'} color={this.props.colors['textColor']} size={0.11 * Dimensions.get('screen').width} />
                         </TouchableHighlight>
                         {this.getColors()}
-                        <TouchableHighlight style={styles.button} onPress={() => { this.setState({ diaryColorsModalVisible: true }) }} underlayColor={this.props.colors['modalBackColor']} >
+                        <TouchableHighlight style={styles.colorButton} onPress={() => { this.setState({ diaryColorsModalVisible: true }) }} underlayColor={this.props.colors['modalBackColor']} >
                             <Ionicons name={'ios-more'} color={this.props.colors['textColor']} size={0.11 * Dimensions.get('screen').width} />
                         </TouchableHighlight>
                     </View>
 
-                    <TextInput style={styles.TextInputStyle} placeholder={"\nNothing happened to you today?\nImpossible"} value={this.state.diary} onChangeText={text => { this.setState({ diary: text }) }} keyboardAppearance={this.props.mode} placeholderTextColor={this.props.colors["textColor"] + '88'} multiline={true}></TextInput>
+                    <TouchableHighlight style={styles.fontButton} onPress={() => this.setState({ diaryFontsModalVisible: true })}>
+                        <Text style={styles.font}>{this.props.diaryFont === "" ? this.props.fontFamily : this.props.diaryFont}</Text>
+                    </TouchableHighlight>
+
+                    {this.state.image == null ?
+                        <TouchableHighlight style={styles.emptyImage} onPress={this.openImagePickerAsync}>
+                            <Text style={styles.emptyImageText}>
+                                Press here to add an image
+                            </Text>
+                        </TouchableHighlight> :
+                        <TouchableHighlight style={[styles.emptyImage,{borderWidth:0}]} onPress={this.openImagePickerAsync} onLongPress={()=>this.setState({confirmationModalVisible:true})}>
+                            <Image source={{ uri: `data:image/jpg;base64,${this.state.image}` }} style={styles.image} />
+                        </TouchableHighlight>
+                    }
+
 
 
                 </LinearGradient>
 
+                {/* </ScrollView> */}
 
 
 
