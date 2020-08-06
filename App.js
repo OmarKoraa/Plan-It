@@ -8,6 +8,7 @@ import { StyleSheet, Text, View, AsyncStorage, Platform } from 'react-native';
 import AppNavigator from './navigation/AppNavigator';
 import { AppLoading } from 'expo'
 import { Asset } from 'expo-asset';
+import * as FileSystem from 'expo-file-system'
 
 
 
@@ -96,6 +97,10 @@ class App extends React.Component {
       this.setState({ mode: 'dark', colors: colors})
     }
 
+    let imagesInfo = await FileSystem.getInfoAsync(FileSystem.documentDirectory+"images/")
+    if(!imagesInfo.exists){
+      await FileSystem.makeDirectoryAsync(FileSystem.documentDirectory+'images/')
+    }
   }
 
 

@@ -1,11 +1,12 @@
 import React from "react";
 import { View, TextInput, StyleSheet, Dimensions, Picker, Animated, Keyboard, TouchableWithoutFeedback, AsyncStorage, Text, ImageBackground, Image, Modal, ScrollView, TouchableHighlight } from 'react-native'
 import { Button, Icon, Card, Divider } from 'react-native-elements'
-import { FontAwesome } from '@expo/vector-icons'
+import { FontAwesome, AntDesign } from '@expo/vector-icons'
 import { categories } from '../assets/constants/categories'
 import SelectMultiple from 'react-native-select-multiple'
 import { YellowBox } from 'react-native'
 import * as Random from 'expo-random';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
 
 YellowBox.ignoreWarnings([
@@ -24,7 +25,8 @@ class EditFrequentlyModal extends React.Component {
             monthlyDay: '1',
             yearlyDay: '1',
             yearlyMonth: 'January',
-            justOpened: true
+            subtasks: [],
+            justOpened: true,
         }
         this.titleAnimation = new Animated.Value(0)
         this.typeAnimation = new Animated.Value(0)
@@ -42,6 +44,7 @@ class EditFrequentlyModal extends React.Component {
                 monthlyDay: this.props.selectedFrequently.monthlyDay,
                 yearlyDay: this.props.selectedFrequently.yearlyDay,
                 yearlyMonth: this.props.selectedFrequently.yearlyMonth,
+                subtasks: this.props.selectedFrequently.subtasks,
                 justOpened: false
             })
         }
@@ -93,6 +96,7 @@ class EditFrequentlyModal extends React.Component {
             monthlyDay: '1',
             yearlyDay: '1',
             yearlyMonth: 'January',
+            subtasks: [],
             justOpened: true
         })
         this.props.closeModal()
@@ -118,13 +122,14 @@ class EditFrequentlyModal extends React.Component {
         if (this.state.type === 'None') {
             this.startShake(this.typeAnimation)
         }
-        if (this.state.weeklyDays.length === 0&& this.state.type==='Weekly') {
+        if (this.state.weeklyDays.length === 0 && this.state.type === 'Weekly') {
             this.startShake(this.weeklyDaysAnimation)
         }
 
-        if (this.state.title === '' || this.state.type === 'None' || (this.state.weeklyDays.length === 0&& this.state.type==='Weekly')) {
+        if (this.state.title === '' || this.state.type === 'None' || (this.state.weeklyDays.length === 0 && this.state.type === 'Weekly')) {
             return
         }
+        console.log(this.state.subtasks)
 
         let frequentlies = await AsyncStorage.getItem('frequentlies')
         frequentlies = JSON.parse(frequentlies)
@@ -138,7 +143,8 @@ class EditFrequentlyModal extends React.Component {
             weeklyDays: this.state.type === 'Weekly' ? this.state.weeklyDays : [],
             monthlyDay: this.state.type === 'Monthly' ? this.state.monthlyDay : '1',
             yearlyDay: this.state.type === 'Yearly' ? this.state.yearlyDay : '1',
-            yearlyMonth: this.state.type === 'Yearly' ? this.state.yearlyMonth : 'January'
+            yearlyMonth: this.state.type === 'Yearly' ? this.state.yearlyMonth : 'January',
+            subtasks: this.state.subtasks
         }
         for (var i = 0; i < frequentlies.length; i++) {
             if (this.equalIDs(frequentlies[i].id, frequently.id)) {
@@ -158,6 +164,7 @@ class EditFrequentlyModal extends React.Component {
             monthlyDay: '1',
             yearlyDay: '1',
             yearlyMonth: 'January',
+            subtasks: [],
             justOpened: true
         })
         this.props.updateFrequentlies()
@@ -173,6 +180,55 @@ class EditFrequentlyModal extends React.Component {
                 return false
         }
         return true
+    }
+
+    addSubtask = () => {
+        let subtasks = this.state.subtasks
+        subtasks.push("")
+        this.setState({ subtasks: subtasks })
+    }
+
+    getSubtasks = () => {
+        return this.state.subtasks.map((subtask, index) => {
+            const styles = StyleSheet.create({
+                subtask: {
+                    fontSize: 0.02 * Dimensions.get('screen').height > 16 ? 16 : 0.02 * Dimensions.get('screen').height,
+                    fontFamily: this.props.fontFamily,
+                    color: this.props.colors["textColor"],
+                    paddingLeft: 0.018 * Dimensions.get('screen').width > 12 ? 12 : 0.018 * Dimensions.get('screen').width,
+                    width: 0.8 * Dimensions.get('screen').width
+
+
+                },
+                view: {
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    borderBottomColor: this.props.colors["textColor"] + '88',
+                    borderBottomWidth: 1,
+                    marginBottom: 0.02 * Dimensions.get('screen').height > 16 ? 16 : 0.02 * Dimensions.get('screen').height
+                }
+
+            })
+            return (
+                <View style={styles.view} key={index}>
+                    <TextInput value={subtask} style={styles.subtask} onChangeText={text => this.onChangeTextSubtask(text, index)} keyboardAppearance={this.props.mode} multiline={true} ></TextInput>
+                    <TouchableHighlight onPress={() => this.removeSubtask(index)} underlayColor={"#00000000"} >
+                        <AntDesign name={'minuscircle'} color={'red'} size={0.035 * Dimensions.get('screen').height > 21 ? 21 : 0.035 * Dimensions.get('screen').height} />
+                    </TouchableHighlight>
+                </View>)
+        })
+    }
+
+    onChangeTextSubtask = (text, index) => {
+        let subtasks = this.state.subtasks
+        subtasks[index] = text
+        this.setState({ subtasks: subtasks })
+    }
+
+    removeSubtask = (index) => {
+        let subtasks = this.state.subtasks
+        subtasks.splice(index, 1)
+        this.setState({ subtasks: subtasks })
     }
 
 
@@ -201,31 +257,31 @@ class EditFrequentlyModal extends React.Component {
                 backgroundColor: this.props.colors["themeColor"],
                 borderTopLeftRadius: 25,
                 borderTopRightRadius: 25,
-                marginBottom:  - 0.025 * Dimensions.get('screen').height < -20 ? -20 : - 0.025 * Dimensions.get('screen').height,
+                marginBottom: - 0.025 * Dimensions.get('screen').height < -20 ? -20 : - 0.025 * Dimensions.get('screen').height,
                 height: 0.07 * Dimensions.get('screen').height > 60 ? 60 : 0.07 * Dimensions.get('screen').height,
                 borderWidth: 2,
                 borderBottomWidth: 0,
                 borderColor: this.props.colors["textColor"],
             },
             titleText: {
-                fontSize: 0.025 * Dimensions.get('screen').height>20?20:0.025 * Dimensions.get('screen').height,
+                fontSize: 0.025 * Dimensions.get('screen').height > 20 ? 20 : 0.025 * Dimensions.get('screen').height,
                 borderColor: this.props.colors["textColor"],
-                color: this.props.theme==='Focus'?this.props.colors['backColor']:'white',
+                color: this.props.theme === 'Focus' ? this.props.colors['backColor'] : 'white',
                 fontFamily: this.props.fontFamily,
                 paddingTop: (1 / 80.0) * Dimensions.get('screen').height > 7 ? 7 : (1 / 80.0) * Dimensions.get('screen').height,
-           
+
             },
             smallText: {
                 fontSize: 0.018 * Dimensions.get('screen').height,
                 fontFamily: this.props.fontFamily,
                 paddingTop: 0.018 * Dimensions.get('screen').height > 12 ? 12 : 0.018 * Dimensions.get('screen').height,
-                color: this.props.theme==='Focus'?this.props.colors['backColor']:'white',
-             },
+                color: this.props.theme === 'Focus' ? this.props.colors['backColor'] : 'white',
+            },
             textInput: {
                 width: 0.85 * Dimensions.get('window').width,
                 borderWidth: 2,
                 borderColor: this.props.colors['textColor'],
-                height: 0.05 * Dimensions.get('screen').height>40?40:0.05 * Dimensions.get('screen').height,
+                height: 0.05 * Dimensions.get('screen').height > 40 ? 40 : 0.05 * Dimensions.get('screen').height,
                 alignSelf: 'center',
                 borderRadius: 10,
                 paddingLeft: 0.018 * Dimensions.get('screen').height > 12 ? 12 : 0.018 * Dimensions.get('screen').height,
@@ -234,18 +290,18 @@ class EditFrequentlyModal extends React.Component {
                 color: this.props.colors['textColor']
             },
             text: {
-                fontSize: 0.025 * Dimensions.get('screen').height>20?20:0.025 * Dimensions.get('screen').height,
+                fontSize: 0.025 * Dimensions.get('screen').height > 20 ? 20 : 0.025 * Dimensions.get('screen').height,
                 fontFamily: this.props.fontFamily,
                 color: this.props.colors["textColor"],
                 paddingBottom: 0.018 * Dimensions.get('screen').height > 12 ? 12 : 0.018 * Dimensions.get('screen').height,
                 paddingLeft: 0
             },
             scrollView: {
-                height: 0.85 * Dimensions.get('screen').height -0.07 * Dimensions.get('screen').height ,
+                height: 0.85 * Dimensions.get('screen').height - 0.07 * Dimensions.get('screen').height,
 
             },
             picker: {
-                height: 0.1 * Dimensions.get('screen').height>88?88:0.1 * Dimensions.get('screen').height,
+                height: 0.1 * Dimensions.get('screen').height > 88 ? 88 : 0.1 * Dimensions.get('screen').height,
 
                 backgroundColor: 'transparent',
                 width: 0.85 * Dimensions.get('window').width,
@@ -258,13 +314,20 @@ class EditFrequentlyModal extends React.Component {
 
             },
             pickerItem: {
-                height: 0.1 * Dimensions.get('screen').height>88?88:0.1 * Dimensions.get('screen').height,
+                height: 0.1 * Dimensions.get('screen').height > 88 ? 88 : 0.1 * Dimensions.get('screen').height,
 
                 color: this.props.colors['textColor'],
                 borderWidth: 2,
                 borderRadius: 0.018 * Dimensions.get('screen').height > 12 ? 12 : 0.018 * Dimensions.get('screen').height,
                 borderColor: this.props.colors['textColor']
 
+            },
+            subtask: {
+                fontSize: 0.02 * Dimensions.get('screen').height > 16 ? 16 : 0.02 * Dimensions.get('screen').height,
+                fontFamily: this.props.fontFamily,
+                color: this.props.colors["textColor"] + '88',
+                paddingLeft: 0.018 * Dimensions.get('screen').width > 12 ? 12 : 0.018 * Dimensions.get('screen').width,
+                marginBottom: 0.018 * Dimensions.get('screen').height > 12 ? 12 : 0.018 * Dimensions.get('screen').height
             }
         })
 
@@ -284,14 +347,25 @@ class EditFrequentlyModal extends React.Component {
                     <TouchableHighlight onPress={this.save} activeOpacity={1} underlayColor={'#00000000'}><Text style={styles.smallText}>Save</Text></TouchableHighlight>
                 </View>
                 <Card containerStyle={styles.card}>
-                    <ScrollView style={styles.scrollView}>
+                    <KeyboardAwareScrollView style={styles.scrollView} keyboardShouldPersistTaps={'handled'}>
                         <Text style={styles.text}>Title (*)</Text>
                         <Animated.View style={{ transform: [{ translateX: this.titleAnimation }] }}>
                             <TextInput value={this.state.title} placeholder={'A title for your Frequently'} style={styles.textInput} onChangeText={text => this.setState({ title: text })} placeholderTextColor={'#888888'} keyboardAppearance={this.props.mode} />
                         </Animated.View>
 
                         <Text style={styles.text}>Description</Text>
-                        <TextInput value={this.state.description} placeholder={'A little description'} style={[styles.textInput, { height:  0.14 * Dimensions.get('screen').height>120?120:0.14 * Dimensions.get('screen').height }]} onChangeText={text => this.setState({ description: text })} placeholderTextColor={'#888888'} keyboardAppearance={this.props.mode} multiline={true}></TextInput>
+                        <TextInput value={this.state.description} placeholder={'A little description'} style={[styles.textInput, { height: 0.14 * Dimensions.get('screen').height > 120 ? 120 : 0.14 * Dimensions.get('screen').height }]} onChangeText={text => this.setState({ description: text })} placeholderTextColor={'#888888'} keyboardAppearance={this.props.mode} multiline={true}></TextInput>
+
+                        <Text style={styles.text}>Subtasks</Text>
+
+                        {this.getSubtasks()}
+
+                        <TouchableHighlight onPress={this.addSubtask} underlayColor={'#00000000'}>
+                            <View style={{ flexDirection: 'row' }}>
+                                <AntDesign name={'pluscircle'} color={'green'} size={0.035 * Dimensions.get('screen').height > 21 ? 21 : 0.035 * Dimensions.get('screen').height} />
+                                <Text style={styles.subtask}>New Subtask</Text>
+                            </View>
+                        </TouchableHighlight>
 
                         <Text style={styles.text}>Category</Text>
                         <Picker style={styles.picker} itemStyle={styles.pickerItem} selectedValue={this.state.category}
@@ -355,8 +429,8 @@ class EditFrequentlyModal extends React.Component {
 
 
 
-                            <View style={{ height: 0.08 * Dimensions.get('screen').height > 60 ? 60 : 0.08 * Dimensions.get('screen').height }} />
-                    </ScrollView>
+                        <View style={{ height: 0.08 * Dimensions.get('screen').height > 60 ? 60 : 0.08 * Dimensions.get('screen').height }} />
+                    </KeyboardAwareScrollView>
                 </Card>
             </Modal>
         )
