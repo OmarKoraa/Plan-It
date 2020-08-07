@@ -29,7 +29,7 @@ class ManageFrequentliesScreen extends React.Component {
             filtersModalVisible: false,
             filterCategories: [],
             filterTypes: [],
-            confirmationModalVisible:false
+            confirmationModalVisible: false
         }
 
     }
@@ -43,34 +43,37 @@ class ManageFrequentliesScreen extends React.Component {
 
 
     onRefresh = async () => {
-        this.props.screenProps.updateFrequentlies()
+        //this.props.screenProps.updateFrequentlies()
         this.wait(2000).then(() => this.setState({ refreshing: false }))
 
 
     }
 
-    deleteFrequently = async()=>{
+    deleteFrequently = async () => {
         let frequentlies = await AsyncStorage.getItem('frequentlies')
         frequentlies = JSON.parse(frequentlies)
         let location = -1
         for (var i = 0; i < frequentlies.length; i++) {
-            if (this.equalIDs(frequentlies[i].id, this.state.selectedFrequently.id)) {
-                location=i
+            if (this.equalIDs(frequentlies[i].id, this.state.selectedFrequently.id) === true) {
+                location = i
                 break
             }
         }
-        frequentlies.splice(location,1)
-        frequentlies = JSON.stringify(frequentlies)
-        await AsyncStorage.setItem('frequentlies', frequentlies)
-        this.props.screenProps.updateFrequentlies()
-        this.setState({confirmationModalVisible:false})
+        if (location !== -1) {
+            frequentlies.splice(location, 1)
+            frequentlies = JSON.stringify(frequentlies)
+            await AsyncStorage.setItem('frequentlies', frequentlies)
+            frequentlies = JSON.parse(frequentlies)
+            this.props.screenProps.updateFrequentlies(frequentlies)
+        }
+        this.setState({ confirmationModalVisible: false })
     }
 
     equalIDs = (x, y) => {
-        if (x.length !== y.length)
+        if (Object.keys(x).length !== Object.keys(y).length)
             return false
-        for (var i = 0; i < x.length; i++) {
-            if (x[i] !== y[i])
+        for (var i = 0; i < Object.keys(x).length; i++) {
+            if (x[i.toString()] !== y[i.toString()])
                 return false
         }
         return true
@@ -86,11 +89,12 @@ class ManageFrequentliesScreen extends React.Component {
                     width: 0.95 * Dimensions.get('screen').width,
                     backgroundColor: this.props.screenProps.colors["greyishBackColor"],
                     alignSelf: 'center',
-                    borderRadius: 25
+                    borderRadius: 25,
+                    borderColor: this.props.screenProps.colors["themeColor"]
                 },
                 title: {
                     color: this.props.screenProps.colors["textColor"],
-                    fontSize: 0.02875 * Dimensions.get('screen').height > 23 ? 23 : 0.02875 * Dimensions.get('screen').height,
+                    fontSize: 0.02875 * Dimensions.get('screen').height > 28 ? 28 : 0.02875 * Dimensions.get('screen').height,
                     paddingLeft: 0.02 * Dimensions.get('screen').width > 23 ? 23 : 0.02 * Dimensions.get('screen').width
 
                 },
@@ -103,19 +107,52 @@ class ManageFrequentliesScreen extends React.Component {
                     fontSize: 0.018 * Dimensions.get('screen').height > 18 ? 18 : 0.018 * Dimensions.get('screen').height,
                     color: this.props.screenProps.colors["textColor"] + 'aa',
                     paddingLeft: 0.03 * Dimensions.get('screen').width > 20 ? 20 : 0.03 * Dimensions.get('screen').width,
-                },
-                type: {
-                    borderColor: this.props.screenProps.colors['themeColor'],
-                    borderRadius: 40,
-                    borderWidth: 2,
-                    alignContent: 'center',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    paddingTop:0.006 * Dimensions.get('screen').height > 6 ? 6 : 0.006 * Dimensions.get('screen').height
 
                 },
+                subtasksText:{
+                    fontSize: 0.012 * Dimensions.get('screen').height > 12 ? 12 : 0.012 * Dimensions.get('screen').height,
+                    color: this.props.screenProps.colors["themeColor"] +'dd',
+                    paddingLeft: 0.03 * Dimensions.get('screen').width > 20 ? 20 : 0.03 * Dimensions.get('screen').width,
+                    paddingTop:0.006 * Dimensions.get('screen').height > 6 ? 6 : 0.006 * Dimensions.get('screen').height
+                },
                 typeText: {
-                    fontSize: 40,
-                    color: this.props.screenProps.colors["textColor"] + 'aa',
+                    fontSize: 0.028 * Dimensions.get('screen').height > 25 ? 25 : 0.028 * Dimensions.get('screen').height,
+                    color: this.props.screenProps.colors["textColor"] + 'ee',
+                    alignSelf: 'center',
+                    textAlign: 'center',
+                    borderColor: this.props.screenProps.colors['themeColor'],
+                    borderRadius: 0.0225 * Dimensions.get('screen').height > 20 ? 20 : 0.0225 * Dimensions.get('screen').height,
+                    height: 0.045 * Dimensions.get('screen').height > 40 ? 40 : 0.045 * Dimensions.get('screen').height,
+                    width: 0.045 * Dimensions.get('screen').height > 40 ? 40 : 0.045 * Dimensions.get('screen').height,
+                    borderWidth: 2,
+                    fontFamily: this.props.screenProps.fontFamily
+                },
+                weekly: {
+                    fontSize: 0.012 * Dimensions.get('screen').height > 12 ? 12 : 0.012 * Dimensions.get('screen').height,
+                    textAlign: 'center',
+                    fontFamily: this.props.screenProps.fontFamily,
+                    color: this.props.screenProps.colors['textColor'] + '88'
+
+                },
+                weeklyDaySelected: {
+                    color: this.props.screenProps.colors['themeColor']
+                },
+                weeklyDayNotSelected: {
+                    color: this.props.screenProps.colors['textColor'] + '88'
+                },
+                monthly: {
+                    fontSize: 0.015 * Dimensions.get('screen').height > 15 ? 15 : 0.015 * Dimensions.get('screen').height,
+                    textAlign: 'center',
+                    fontFamily: this.props.screenProps.fontFamily,
+                    color: this.props.screenProps.colors['textColor']
+                },
+                yearly: {
+
+                    fontSize: 0.015 * Dimensions.get('screen').height > 15 ? 15 : 0.015 * Dimensions.get('screen').height,
+                    textAlign: 'center',
+                    fontFamily: this.props.screenProps.fontFamily,
+                    color: this.props.screenProps.colors['textColor']
                 }
             })
             let colors = [this.props.screenProps.colors['textColor'], this.props.screenProps.colors['backColor']]
@@ -146,32 +183,102 @@ class ManageFrequentliesScreen extends React.Component {
                         this.setState({ selectedFrequently: frequently, editFrequentlyModalVisible: true })
                     }
 
-                    onLongPress = {()=>{this.setState({selectedFrequently:frequently,confirmationModalVisible:true})}}
+                    onLongPress={() => { this.setState({ selectedFrequently: frequently, confirmationModalVisible: true }) }}
 
                 >
                     <Card containerStyle={styles.card}>
-                        <View style={{ flexDirection: 'row' }}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
 
-                            <LinearGradient colors={colors} style={styles.gradient} />
-
-
-
-                            <View>
-                                <Text style={styles.title}>{frequently.title}</Text>
-                                <Text style={styles.text}>{frequently.description}</Text>
+                            <View style={{ flexDirection: 'row' }}>
+                                <LinearGradient colors={colors} style={styles.gradient} />
+                                <View>
+                                    <Text style={styles.title}>{frequently.title}</Text>
+                                    {frequently.description.length === 0 ? null : <Text style={styles.text}>{frequently.description}</Text>}
+                                    {frequently.subtasks.length > 0 ? <Text style={styles.subtasksText}>{"" + frequently.subtasks.length + " subtask" + (frequently.subtasks.length>1?"s":"")}</Text> : null}
+                                </View>
                             </View>
-                            {/* <View style={styles.type}>
-                            <Text style={styles.typeText}>
-                                {frequently.type ==='Daily'?'D':null}
-                                {frequently.type ==='Weekly'?'W':null}
-                                {frequently.type ==='Monthly'?'M':null}
-                                {frequently.type ==='Yearly'?'Y':null}
-                            </Text>
-                        </View> */}
+                            <View>
+
+                                <Text style={styles.typeText}>
+                                    {frequently.type === 'Daily' ? 'D' : null}
+                                    {frequently.type === 'Weekly' ? 'W' : null}
+                                    {frequently.type === 'Monthly' ? 'M' : null}
+                                    {frequently.type === 'Yearly' ? 'Y' : null}
+                                </Text>
+
+                                {frequently.type === 'Weekly' ?
+                                    <Text style={styles.weekly}>
+                                        <Text style={[styles.weekly, this.weeklyDayExists("Sunday", frequently.weeklyDays) ? styles.weeklyDaySelected : styles.weeklyDayNotSelected]}>S</Text>
+                                        {","}
+                                        <Text style={[styles.weekly, this.weeklyDayExists("Monday", frequently.weeklyDays) ? styles.weeklyDaySelected : styles.weeklyDayNotSelected]}>M</Text>
+                                        {","}
+                                        <Text style={[styles.weekly, this.weeklyDayExists("Tuesday", frequently.weeklyDays) ? styles.weeklyDaySelected : styles.weeklyDayNotSelected]}>T</Text>
+                                        {",\n"}
+                                        <Text style={[styles.weekly, this.weeklyDayExists("Wednesday", frequently.weeklyDays) ? styles.weeklyDaySelected : styles.weeklyDayNotSelected]}>W</Text>
+                                        {","}
+                                        <Text style={[styles.weekly, this.weeklyDayExists("Thursday", frequently.weeklyDays) ? styles.weeklyDaySelected : styles.weeklyDayNotSelected]}>T</Text>
+                                        {","}
+                                        <Text style={[styles.weekly, this.weeklyDayExists("Friday", frequently.weeklyDays) ? styles.weeklyDaySelected : styles.weeklyDayNotSelected]}>F</Text>
+                                        {","}
+                                        <Text style={[styles.weekly, this.weeklyDayExists("Saturday", frequently.weeklyDays) ? styles.weeklyDaySelected : styles.weeklyDayNotSelected]}>S</Text>
+                                    </Text>
+                                    : null}
+
+                                {frequently.type === 'Monthly' ?
+                                    <Text style={styles.monthly}>
+                                        {frequently.monthlyDay}
+                                    </Text>
+                                    :
+                                    null}
+
+                                {frequently.type === 'Yearly' ?
+                                    <Text style={styles.yearly}>
+                                        {frequently.yearlyDay + "/" + this.convertMonthToNumber(frequently.yearlyMonth)}
+                                    </Text>
+                                    :
+                                    null}
+
+
+                            </View>
                         </View>
                     </Card>
                 </TouchableOpacity>)
         })
+    }
+
+    weeklyDayExists = (day, weeklyDays) => {
+        for (var i = 0; i < weeklyDays.length; i++) {
+            if (day === weeklyDays[i].value)
+                return true
+        }
+        return false
+    }
+
+    convertMonthToNumber = (month) => {
+        if (month === "January")
+            return 1
+        if (month === "February")
+            return 2
+        if (month === "March")
+            return 3
+        if (month === "April")
+            return 4
+        if (month === "May")
+            return 5
+        if (month === "June")
+            return 6
+        if (month === "July")
+            return 7
+        if (month === "August")
+            return 8
+        if (month === "September")
+            return 9
+        if (month === "October")
+            return 10
+        if (month === "November")
+            return 11
+        if (month === "December")
+            return 12
     }
 
     getCategoryFilters() {
@@ -261,10 +368,9 @@ class ManageFrequentliesScreen extends React.Component {
         })
     }
 
-    
+
 
     render() {
-
         const styles = StyleSheet.create({
             navigator: {
                 height: (1 / 9.0) * Dimensions.get('screen').height,
@@ -374,16 +480,16 @@ class ManageFrequentliesScreen extends React.Component {
 
 
                     <View >
-                        <CreateFrequentlyModal theme={this.props.screenProps.theme} colors={this.props.screenProps.colors} modalVisible={this.state.createFrequentlyModalVisible} closeModal={() => { this.setState({ createFrequentlyModalVisible: false }) }} mode={this.props.screenProps.mode} fontFamily={this.props.screenProps["fontFamily"]} updateFrequentlies={() => this.props.screenProps.updateFrequentlies()} />
+                        <CreateFrequentlyModal theme={this.props.screenProps.theme} colors={this.props.screenProps.colors} modalVisible={this.state.createFrequentlyModalVisible} closeModal={() => { this.setState({ createFrequentlyModalVisible: false }) }} mode={this.props.screenProps.mode} fontFamily={this.props.screenProps["fontFamily"]} updateFrequentlies={this.props.screenProps.updateFrequentlies} />
 
                         <FrequentlyInfoModal theme={this.props.screenProps.theme} colors={this.props.screenProps.colors} modalVisible={this.state.frequentlyInfoModalVisible} closeModal={() => { this.setState({ frequentlyInfoModalVisible: false }) }} mode={this.props.screenProps.mode} fontFamily={this.props.screenProps["fontFamily"]} />
 
                         <FiltersModal theme={this.props.screenProps.theme} colors={this.props.screenProps.colors} modalVisible={this.state.filtersModalVisible} closeModal={() => { this.setState({ filtersModalVisible: false }) }} fontFamily={this.props.screenProps["fontFamily"]} mode={this.props.screenProps.mode} filterCategories={this.state.filterCategories} changeFilterCategories={(filterCategories) => { this.setState({ filterCategories: filterCategories }) }} filterTypes={this.state.filterTypes} changeFilterTypes={(filterTypes) => this.setState({ filterTypes: filterTypes })} />
 
-                        <EditFrequentlyModal theme={this.props.screenProps.theme} colors={this.props.screenProps.colors} modalVisible={this.state.editFrequentlyModalVisible} closeModal={() => { this.setState({ editFrequentlyModalVisible: false }) }} fontFamily={this.props.screenProps["fontFamily"]} mode={this.props.screenProps.mode} selectedFrequently={this.state.selectedFrequently} updateFrequentlies={() => this.props.screenProps.updateFrequentlies()} />
-                       
-                       <ConfirmationModal theme = {this.props.screenProps.theme} colors={this.props.screenProps.colors} modalVisible={this.state.confirmationModalVisible} closeModal={()=>{this.setState({confirmationModalVisible:false})}} leftAction={()=>{this.setState({confirmationModalVisible:false})}} leftText={'Cancel'} title={'Delete Frequenetly'} rightText={'Delete'} rightAction = {()=>this.deleteFrequently()} text={"Are you sure you want to delete this frequently?\n This can not be undone."}  fontFamily={this.props.screenProps["fontFamily"]} mode={this.props.screenProps.mode}/>
-                       
+                        <EditFrequentlyModal theme={this.props.screenProps.theme} colors={this.props.screenProps.colors} modalVisible={this.state.editFrequentlyModalVisible} closeModal={() => { this.setState({ editFrequentlyModalVisible: false }) }} fontFamily={this.props.screenProps["fontFamily"]} mode={this.props.screenProps.mode} selectedFrequently={this.state.selectedFrequently} updateFrequentlies={this.props.screenProps.updateFrequentlies} />
+
+                        <ConfirmationModal theme={this.props.screenProps.theme} colors={this.props.screenProps.colors} modalVisible={this.state.confirmationModalVisible} closeModal={() => { this.setState({ confirmationModalVisible: false }) }} leftAction={() => { this.setState({ confirmationModalVisible: false }) }} leftText={'Cancel'} title={'Delete Frequenetly'} rightText={'Delete'} rightAction={() => this.deleteFrequently()} text={"Are you sure you want to delete this frequently?\n This can not be undone."} fontFamily={this.props.screenProps["fontFamily"]} mode={this.props.screenProps.mode} />
+
                         <View style={styles.textInputView}>
 
                             <FontAwesome name={'search'} size={0.1 * Dimensions.get('screen').width > 30 ? 30 : 0.1 * Dimensions.get('screen').width} color={this.props.screenProps.colors["textColor"]} />

@@ -30,7 +30,6 @@ class App extends React.Component {
         'backColorModal': '#555555',
         'greyishBackColor': '#111111'
       },
-      updateFrequentlies: false,
       fontFamily: Platform.OS === 'ios' ? "PingFangSC-Semibold" : "sans-serif-medium",
       frequentlies: [],
       theme:'Galaxy',
@@ -40,11 +39,6 @@ class App extends React.Component {
   }
 
   async componentDidUpdate() {
-    if (this.state.updateFrequentlies) {
-      let frequentlies = await AsyncStorage.getItem('frequentlies')
-      frequentlies = JSON.parse(frequentlies)
-      this.setState({ frequentlies: frequentlies, updateFrequentlies: false })
-    }
     if(this.state.updateTheme){
       this.setState({updateTheme:false})
     }
@@ -121,7 +115,7 @@ class App extends React.Component {
     }
     
     return (
-      <AppNavigator screenProps={{ colors: this.state.colors, mode: this.state.mode, setMode: (mode, colors) => { this.setState({ mode: mode, colors: colors,updateMode:true }) }, fontFamily: this.state.fontFamily, frequentlies: this.state.frequentlies , updateFrequentlies: () => { this.setState({ updateFrequentlies: true }) } , theme:this.state.theme , setTheme: (theme,colors)=>{this.setState({colors:colors,theme:theme,updateTheme:true})}}} />
+      <AppNavigator screenProps={{ colors: this.state.colors, mode: this.state.mode, setMode: (mode, colors) => { this.setState({ mode: mode, colors: colors,updateMode:true }) }, fontFamily: this.state.fontFamily, frequentlies: this.state.frequentlies , updateFrequentlies: (frequentlies) => { this.setState({ frequentlies: frequentlies }) } , theme:this.state.theme , setTheme: (theme,colors)=>{this.setState({colors:colors,theme:theme,updateTheme:true})}}} />
 
     );
   }

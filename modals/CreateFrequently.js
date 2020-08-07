@@ -141,7 +141,8 @@ class CreateFrequentlyModal extends React.Component {
             yearlyMonth: 'January',
             subtasks:[]
         })
-        this.props.updateFrequentlies()
+        frequentlies= JSON.parse(frequentlies)
+        this.props.updateFrequentlies(frequentlies)
         this.props.closeModal()
 
     }
