@@ -129,10 +129,10 @@ class EditFrequentlyModal extends React.Component {
         if (this.state.title === '' || this.state.type === 'None' || (this.state.weeklyDays.length === 0 && this.state.type === 'Weekly')) {
             return
         }
-        console.log(this.state.subtasks)
 
         let frequentlies = await AsyncStorage.getItem('frequentlies')
         frequentlies = JSON.parse(frequentlies)
+      //  console.log(frequentlies)
         let frequently = {
             id: this.props.selectedFrequently.id,
             title: this.state.title,
@@ -152,6 +152,7 @@ class EditFrequentlyModal extends React.Component {
                 break
             }
         }
+      //  console.log(frequentlies)
 
         frequentlies = JSON.stringify(frequentlies)
         await AsyncStorage.setItem('frequentlies', frequentlies)
@@ -167,16 +168,17 @@ class EditFrequentlyModal extends React.Component {
             subtasks: [],
             justOpened: true
         })
-        this.props.updateFrequentlies()
+        frequentlies= JSON.parse(frequentlies)
+        this.props.updateFrequentlies(frequentlies)
         this.props.closeModal()
 
     }
 
     equalIDs = (x, y) => {
-        if (x.length !== y.length)
+        if (Object.keys(x).length !== Object.keys(y).length)
             return false
-        for (var i = 0; i < x.length; i++) {
-            if (x[i] !== y[i])
+        for (var i = 0; i < Object.keys(x).length; i++) {
+            if (x[i.toString()] !== y[i.toString()])
                 return false
         }
         return true
