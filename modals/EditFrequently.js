@@ -34,6 +34,7 @@ class EditFrequentlyModal extends React.Component {
     }
 
     componentDidUpdate = () => {
+
         if (this.state.justOpened && this.props.modalVisible) {
             this.setState({
                 title: this.props.selectedFrequently.title,
@@ -87,6 +88,7 @@ class EditFrequentlyModal extends React.Component {
     }
 
     close() {
+        this.props.closeModal()
         this.setState({
             title: '',
             description: '',
@@ -99,7 +101,6 @@ class EditFrequentlyModal extends React.Component {
             subtasks: [],
             justOpened: true
         })
-        this.props.closeModal()
 
     }
 
@@ -132,7 +133,6 @@ class EditFrequentlyModal extends React.Component {
 
         let frequentlies = await AsyncStorage.getItem('frequentlies')
         frequentlies = JSON.parse(frequentlies)
-      //  console.log(frequentlies)
         let frequently = {
             id: this.props.selectedFrequently.id,
             title: this.state.title,
@@ -152,10 +152,13 @@ class EditFrequentlyModal extends React.Component {
                 break
             }
         }
-      //  console.log(frequentlies)
 
         frequentlies = JSON.stringify(frequentlies)
         await AsyncStorage.setItem('frequentlies', frequentlies)
+        frequentlies = JSON.parse(frequentlies)
+        this.props.updateFrequentlies(frequentlies)
+        this.props.closeModal()
+
         this.setState({
             title: '',
             description: '',
@@ -168,9 +171,6 @@ class EditFrequentlyModal extends React.Component {
             subtasks: [],
             justOpened: true
         })
-        frequentlies= JSON.parse(frequentlies)
-        this.props.updateFrequentlies(frequentlies)
-        this.props.closeModal()
 
     }
 
