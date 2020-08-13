@@ -18,7 +18,8 @@ import ManageFrequentliesScreen from '../screens/ManageFrequentlies'
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { TouchableOpacity } from 'react-native';
 import TodayScreen from '../screens/Today'
-import { MaterialIcons } from 'react-native-vector-icons'
+import { MaterialIcons,AntDesign,FontAwesome5 } from 'react-native-vector-icons'
+import CalendarScreen from '../screens/Calendar'
 
 import { COLORS } from '../App'
 import { THEME } from '../App'
@@ -37,6 +38,8 @@ const getTabBarIcon = (navigation, focused, tintColor) => {
     color = focused ? COLORS.themeColor : '#888888'
   if (routeName === "Settings")
     return <IconComponent name={'md-settings'} size={0.1 * Dimensions.get('screen').height > 35 ? 35 : 0.1 * Dimensions.get('screen').height} color={color} style={{ position: 'absolute', bottom: 0.044 * Dimensions.get('screen').height }} />;
+    if(routeName==='Calendar')
+    return <AntDesign name={'calendar'} size={0.112 * Dimensions.get('screen').height > 40 ? 40 : 0.112 * Dimensions.get('screen').height} color={color} style={{ position: 'absolute', bottom: 0.041 * Dimensions.get('screen').height }}/>
   else
     {
       let date=new Date()
@@ -103,6 +106,7 @@ const Home = createAppContainer(
   createBottomTabNavigator(
     {
       Today: { screen: Today },
+      Calendar:{screen:CalendarScreen},
       Settings: { screen: Settings },
     },
     {

@@ -4,13 +4,8 @@
     "slug": "planit",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon2.png",
+    "icon": "./assets/images/App_Logo.png",
     "splash": {
-      "image": "./assets/images/planet.png",
-      "resizeMode": "contain",
-      "andriod": {
-        "splash": "native"
-      },
       "backgroundColor": "#000000"
     },
     "updates": {

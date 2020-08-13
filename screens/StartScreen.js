@@ -6,6 +6,8 @@ import Planet from '../assets/images/planet.png'
 import Sea from '../assets/images/Sea.gif'
 import Forest from '../assets/images/Forest.gif'
 import Focus from '../assets/images/Focus.gif'
+import Fire from '../assets/images/Fire.gif'
+import Sunflower from '../assets/images/Sunflower.gif'
 import { FontAwesome } from '@expo/vector-icons'
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
@@ -250,7 +252,7 @@ class StartScreen extends React.Component {
 
         return (
             <Animated.View style={[styles.fullscreen, { transform: [{ translateX: this.shakeAnimation }] }]}>
-                <ImageBackground source={this.props.screenProps.theme ==='Galaxy'?Nebula:this.props.screenProps.theme ==='Sea'?Sea:this.props.screenProps.theme ==='Nature'?Forest:Focus} style={styles.backimage}>
+                <ImageBackground source={this.props.screenProps.theme ==='Galaxy'?Nebula:this.props.screenProps.theme ==='Sea'?Sea:this.props.screenProps.theme ==='Nature'?Forest:this.props.screenProps.theme==="Fire"?Fire:this.props.screenProps.theme==="Sunflower"?Sunflower:Focus} style={styles.backimage}>
                     <ScrollView style={{ flex: 1, height: Dimensions.get("screen").height }} scrollEnabled={false} keyboardShouldPersistTaps={"handled"}>
 
                         <View>

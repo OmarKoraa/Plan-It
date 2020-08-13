@@ -12,6 +12,7 @@ import { categories } from '../assets/constants/categories'
 import { ProgressChart } from 'react-native-chart-kit'
 
 
+
 class TodayScreen extends React.Component {
     constructor(props) {
         super(props)
@@ -25,11 +26,18 @@ class TodayScreen extends React.Component {
             diaryFont: Platform.OS === 'ios' ? "PingFangSC-Semibold" : "sans-serif-medium",
             frequentliesShowMore: false,
             subtasksOpen: [],
-            frequentliesDone: 0
+            frequentliesDone: 0,
+            frequentliesPercentageCurrent: 0.0,
+            frequentliesPercentageTarget: 0.0
+
 
         }
 
+
+
     }
+
+
 
     componentDidMount = async () => {
         let diaryFont = await AsyncStorage.getItem("diaryFont")
@@ -61,9 +69,28 @@ class TodayScreen extends React.Component {
             let subtasksOpen = Array(frequentlies.length).fill(false)
             let today = this.state.today
             today['frequentlies'] = frequentlies
-            this.setState({ today: today, subtasksOpen: subtasksOpen, frequentliesDone: frequentliesDone })
+
+            let target = frequentliesDone/ (frequentlies.length*1.0)
+
+
+            this.setState({ today: today, subtasksOpen: subtasksOpen, frequentliesDone: frequentliesDone,frequentliesPercentageTarget:target })
+
+
             this.saveDay()
             this.props.screenProps.todayFrequentliesUpdated()
+        }
+        let current = this.state.frequentliesPercentageCurrent
+        current = parseFloat(current.toFixed(2))
+        let target = this.state.frequentliesPercentageTarget
+        target = parseFloat(target.toFixed(2))
+        if (current !== target) {
+
+
+            current > target ? current-target>0.03? current -= 0.03:current-=(current-target) : target-current>0.03?current += 0.03:current+=(target-current) 
+
+            setTimeout(() => {
+                this.setState({ frequentliesPercentageCurrent: current })
+            }, 10)
         }
 
     }
@@ -113,9 +140,10 @@ class TodayScreen extends React.Component {
                 frequentliesDone += 1
             }
         }
+        let target = frequentliesDone/ (today.frequentlies.length*1.0)
 
 
-        this.setState({ today: today, frequentliesDone: frequentliesDone })
+        this.setState({ today: today, frequentliesDone: frequentliesDone ,frequentliesPercentageTarget:target})
 
         this.saveDay()
 
@@ -206,13 +234,13 @@ class TodayScreen extends React.Component {
         for (var i = 0; i < allFrequentlies.length; i++) {
             for (var j = 0; j < this.state.today.frequentlies.length; j++) {
                 if (this.equalIDs(allFrequentlies[i].id, this.state.today.frequentlies[j].id)) {
-                    
+
 
                     if (allFrequentlies[i].subtasks.length === this.state.today.frequentlies[j].subtasks.length) {
                         allFrequentlies[i]['subtasksDone'] = this.state.today.frequentlies[j].subtasksDone
                         allFrequentlies[i].done = this.state.today.frequentlies[j].done
                     }
-                    
+
 
 
 
@@ -534,9 +562,11 @@ class TodayScreen extends React.Component {
                 frequentliesDone += 1
             }
         }
+        let target = frequentliesDone / (this.state.today.frequentlies.length * 1.0)
+
         let today = this.state.today
         today.frequentlies[frequentlyIndex] = frequently
-        this.setState({ today: today, frequentliesDone: frequentliesDone })
+        this.setState({ today: today, frequentliesDone: frequentliesDone, frequentliesPercentageTarget: target })
         this.saveDay()
     }
 
@@ -552,15 +582,17 @@ class TodayScreen extends React.Component {
         else {
             frequentliesDone -= 1
         }
+        let target = frequentliesDone / (this.state.today.frequentlies.length * 1.0)
         let today = this.state.today
         today.frequentlies[index] = frequently
-        this.setState({ today: today, frequentliesDone: frequentliesDone })
+        this.setState({ today: today, frequentliesDone: frequentliesDone, frequentliesPercentageTarget: target })
         this.saveDay()
     }
 
+    
+
 
     render = () => {
-
         const styles = StyleSheet.create({
             fullscreen: {
                 flex: 1,
@@ -783,7 +815,7 @@ class TodayScreen extends React.Component {
                     <View style={{
                         borderBottomRightRadius: 25,
                         borderBottomLeftRadius: 25,
-                        height: 0.28 * Dimensions.get('screen').height,
+                        height: 0.325 * Dimensions.get('screen').height,
                         backgroundColor: this.props.screenProps.colors['greyishBackColor'],
                         width: 0.9 * Dimensions.get('screen').width,
                         alignSelf: 'center',
@@ -792,18 +824,18 @@ class TodayScreen extends React.Component {
                         <ProgressChart
                             data={{
                                 labels: ["Frequentlies"], // optional
-                                data: [this.state.today.frequentlies.length > 0 ? this.state.frequentliesDone / (this.state.today.frequentlies.length * 1.0) : 1]
+                                data: [this.state.frequentliesPercentageCurrent]//[this.state.today.frequentlies.length > 0 ? this.state.frequentliesDone / (this.state.today.frequentlies.length * 1.0) : 1]
                             }}
                             width={0.9 * Dimensions.get('screen').width}
-                            height={0.25 * Dimensions.get('screen').height}
-                            strokeWidth={0.07 * Dimensions.get('screen').width}
-                            radius={0.14 * Dimensions.get('screen').width}
+                            height={0.3 * Dimensions.get('screen').height}
+                            strokeWidth={0.07 * Dimensions.get('screen').width>32?32:0.07*Dimensions.get('screen').width}
+                            radius={0.14 * Dimensions.get('screen').width>64?64:0.14*Dimensions.get('screen').width}
                             chartConfig={{
                                 backgroundGradientFrom: this.props.screenProps.colors['greyishBackColor'],
                                 backgroundGradientFromOpacity: 1,
                                 backgroundGradientTo: this.props.screenProps.colors['greyishBackColor'],
                                 backgroundGradientToOpacity: 1,
-                                color: (opacity = 1) => { return this.props.screenProps.theme === "Galaxy" ? `rgba(128, 0, 128, ${opacity})` : this.props.screenProps.theme === "Nature" ? `rgba(83, 131, 59, ${opacity})` : this.props.screenProps.theme === "Sea" ? `rgba(0, 105, 148, ${opacity})` : this.props.screenProps.mode === 'dark' ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})` },
+                                color: (opacity = 1) => { return this.props.screenProps.theme === "Galaxy" ? `rgba(128, 0, 128, ${opacity})` : this.props.screenProps.theme === "Nature" ? `rgba(83, 131, 59, ${opacity})` : this.props.screenProps.theme === "Sea" ? `rgba(0, 105, 148, ${opacity})` : this.props.screenProps.theme === "Fire" ? `rgba(206,32,41,${opacity})` : this.props.screenProps.theme === "Sunflower" ? `rgba(232,222,42,${opacity})` : this.props.screenProps.mode === 'dark' ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})` },
                                 barPercentage: 0.5,
                                 useShadowColorFromDataset: false, // optional
                                 propsForLabels: {
@@ -814,6 +846,7 @@ class TodayScreen extends React.Component {
                                 labelColor: (opacity = 1) => { return this.props.screenProps.mode === 'dark' ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})` }
                             }}
                             hideLegend={false}
+
 
                         />
                     </View>
