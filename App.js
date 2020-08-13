@@ -1,4 +1,4 @@
-import { YellowBox } from 'react-native'
+import { YellowBox, Dimensions } from 'react-native'
 
 
 YellowBox.ignoreWarnings(['Require cycles are allowed'])
@@ -9,6 +9,7 @@ import AppNavigator from './navigation/AppNavigator';
 import { AppLoading } from 'expo'
 import { Asset } from 'expo-asset';
 import * as FileSystem from 'expo-file-system'
+import AnimatedSplash from "react-native-animated-splash-screen";
 
 
 
@@ -53,6 +54,7 @@ class App extends React.Component {
   }
 
   async componentDidMount() {
+    await this._cacheResourcesAsync()
     let frequentlies = await AsyncStorage.getItem('frequentlies')
     if (!frequentlies) {
       frequentlies = []
@@ -74,7 +76,7 @@ class App extends React.Component {
       let colors = {
         'backColor': result === 'dark' ? '#000000' : '#ffffff',
         'textColor': result === 'dark' ? '#ffffff' : '#000000',
-        'themeColor': theme === 'Galaxy' ? '#800080' : theme === 'Nature' ? '#53833b' : theme === 'Sea' ? '#006994' : result === 'dark' ? '#ffffff' : '#000000',
+        'themeColor': theme === 'Galaxy' ? '#800080' : theme === 'Nature' ? '#53833b' : theme === 'Sea' ? '#006994' : theme === 'Fire' ? '#ce2029' : theme === 'Sunflower' ? '#E8DE2A' : result === 'dark' ? '#ffffff' : '#000000',
         'backColorModal': result === 'dark' ? '#333333' : "#cccccc",
         'greyishBackColor': result === 'dark' ? '#111111' : '#eeeeee'
       }
@@ -84,7 +86,7 @@ class App extends React.Component {
       let colors = {
         'backColor': '#000000',
         'textColor': '#ffffff',
-        'themeColor': theme === 'Galaxy' ? '#800080' : theme === 'Nature' ? '#53833b' : theme === 'Sea' ? '#006994' : '#ffffff',
+        'themeColor': theme === 'Galaxy' ? '#800080' : theme === 'Nature' ? '#53833b' : theme === 'Sea' ? '#006994' : theme === 'Fire' ? '#ce2029' : theme === 'Sunflower' ? '#E8DE2A' : '#ffffff',
         'backColorModal': '#555555',
         'greyishBackColor': '#111111'
       }
@@ -96,6 +98,8 @@ class App extends React.Component {
     if (!imagesInfo.exists) {
       await FileSystem.makeDirectoryAsync(FileSystem.documentDirectory + 'images/')
     }
+    setTimeout(()=>{this.setState({isReady:true})},3000)
+
   }
 
 
@@ -116,28 +120,25 @@ class App extends React.Component {
       theme: this.state.theme,
       setTheme: (theme, colors) => { this.setState({ colors: colors, theme: theme, updateTheme: true }) }
     }
-    if (!this.state.isReady) {
-      return (
-
-
-        <AppLoading
-          startAsync={this._cacheResourcesAsync}
-          onFinish={() => this.setState({ isReady: true })}
-        />
-
-      )
-    }
-
     return (
-      <AppNavigator screenProps={screenProps} />
 
-    );
+      <AnimatedSplash
+        isLoaded={this.state.isReady}
+        logoImage={require('./assets/images/Logo.gif')}
+        backgroundColor={"#000000"}
+        logoHeight={Dimensions.get('screen').height}
+        logoWidth={Dimensions.get('screen').width}
+      >
+        <AppNavigator screenProps={screenProps} />
+      </AnimatedSplash>
+    )
+
   }
 
   async _cacheResourcesAsync() {
     const images = [require('./assets/images/Nebula.gif'), require('./assets/images/planet.png'), require('./assets/images/Nebula2.jpeg'), require('./assets/images/Nebula5.jpeg')
-      , require('./assets/images/Dark.png'), require('./assets/images/Light.png'), require('./assets/images/Sea.gif'), require('./assets/images/Forest.gif'), require('./assets/images/Focus.gif'),
-    require('./assets/images/Sea.png'), require('./assets/images/Tree.png'), , require('./assets/images/Galaxy.png'), require('./assets/images/Focus.png')];
+      , require('./assets/images/Dark.png'), require('./assets/images/Light.png'), require('./assets/images/Sea.gif'), require('./assets/images/Forest.gif'), require('./assets/images/Focus.gif'), require('./assets/images/Fire.gif'), require('./assets/images/Sunflower.gif'),
+    require('./assets/images/Sea.png'), require('./assets/images/Tree.png'), , require('./assets/images/Galaxy.png'), require('./assets/images/Focus.png'), require('./assets/images/Fire.png'), require('./assets/images/Sunflower.png'), require('./assets/images/Logo.gif')];
 
     const cacheImages = images.map(image => {
       return Asset.fromModule(image).downloadAsync();

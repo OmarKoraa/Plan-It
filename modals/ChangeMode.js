@@ -34,7 +34,7 @@ class ChangeModeModal extends React.Component {
         let colors = {
             'backColor': mode === 'dark' ? '#000000' : '#ffffff',
             'textColor': mode === 'dark' ? '#ffffff' : '#000000',
-            'themeColor': this.props.theme === 'Galaxy'?'#800080':this.props.theme === 'Nature'? '#53833b':this.props.theme==='Sea'? '#006994':mode==='dark'?'#ffffff':'#000000',
+            'themeColor': this.props.theme === 'Galaxy'?'#800080':this.props.theme === 'Nature'? '#53833b':this.props.theme==='Sea'? '#006994':this.props.theme==='Fire'? '#ce2029':this.props.theme==='Sunflower'?'#E8DE2A' :mode==='dark'?'#ffffff':'#000000',
             'backColorModal': mode === 'dark' ? '#333333' : "#cccccc",
             'greyishBackColor': mode === 'dark' ? '#111111' : '#eeeeee'
         }
