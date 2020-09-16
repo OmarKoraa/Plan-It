@@ -10,6 +10,11 @@ import DiaryModal from '../modals/Diary'
 import * as FileSystem from 'expo-file-system';
 import { categories } from '../assets/constants/categories'
 import { ProgressChart } from 'react-native-chart-kit'
+import ArrangeTodayScreenModal from '../modals/ArrangeTodayScreen'
+import { icons } from '../assets/constants/icons'
+import { iconsColors } from '../assets/constants/iconsColors'
+import ValueForTrackerModal from '../modals/ValueForTracker'
+
 
 
 
@@ -28,13 +33,14 @@ class TodayScreen extends React.Component {
             subtasksOpen: [],
             frequentliesDone: 0,
             frequentliesPercentageCurrent: 0.0,
-            frequentliesPercentageTarget: 0.0
-
-
+            frequentliesPercentageTarget: 0.0,
+            date: new Date(),
+            arrangeTodayScreenModalVisible: false,
+            trackersShowMore: false,
+            valueForTrackerModalVisible: false,
+            selectedTracker: this.props.screenProps.trackers.length > 0 ? this.props.screenProps.trackers[0] : {},
+            latestValueForSelectedTracker: 0.0
         }
-
-
-
     }
 
 
@@ -70,10 +76,10 @@ class TodayScreen extends React.Component {
             let today = this.state.today
             today['frequentlies'] = frequentlies
 
-            let target = frequentliesDone/ (frequentlies.length*1.0)
+            let target = frequentliesDone / (frequentlies.length * 1.0)
 
 
-            this.setState({ today: today, subtasksOpen: subtasksOpen, frequentliesDone: frequentliesDone,frequentliesPercentageTarget:target })
+            this.setState({ today: today, subtasksOpen: subtasksOpen, frequentliesDone: frequentliesDone, frequentliesPercentageTarget: target })
 
 
             this.saveDay()
@@ -86,7 +92,7 @@ class TodayScreen extends React.Component {
         if (current !== target) {
 
 
-            current > target ? current-target>0.03? current -= 0.03:current-=(current-target) : target-current>0.03?current += 0.03:current+=(target-current) 
+            current > target ? current - target > 0.03 ? current -= 0.03 : current -= (current - target) : target - current > 0.03 ? current += 0.03 : current += (target - current)
 
             setTimeout(() => {
                 this.setState({ frequentliesPercentageCurrent: current })
@@ -140,23 +146,14 @@ class TodayScreen extends React.Component {
                 frequentliesDone += 1
             }
         }
-        let target = frequentliesDone/ (today.frequentlies.length*1.0)
+        let target = frequentliesDone / (today.frequentlies.length * 1.0)
 
+        let date = new Date()
 
-        this.setState({ today: today, frequentliesDone: frequentliesDone ,frequentliesPercentageTarget:target})
+        this.setState({ today: today, frequentliesDone: frequentliesDone, frequentliesPercentageTarget: target, date: date })
 
         this.saveDay()
 
-
-        var now = new Date();
-        var millisTill12 = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0) - now;
-        if (millisTill12 < 0) {
-            millisTill12 += 86400000; // it's after 12am, try 12am tomorrow.
-        }
-
-        setTimeout(async () => {
-            this.refreshDay()
-        }, millisTill12);
 
         today = new Date()
         let day = today.getDate()
@@ -171,11 +168,23 @@ class TodayScreen extends React.Component {
             this.setState({ image: image })
         }
 
+        var now = new Date();
+        var millisTill12 = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0) - now;
+        if (millisTill12 < 0) {
+            millisTill12 += 86400000; // it's after 12am, try 12am tomorrow.
+        }
+
+        setTimeout(async () => {
+            this.refreshDay()
+        }, millisTill12);
+
+
     }
 
     saveDay = async () => {
         let today = JSON.stringify(this.state.today)
         await AsyncStorage.setItem(this.state.today.date, today)
+        this.props.screenProps.setUpdatedDay(this.state.today.date, true)
     }
 
 
@@ -231,23 +240,26 @@ class TodayScreen extends React.Component {
     setTodayFrequentlies = () => {
         let allFrequentlies = this.props.screenProps.frequentlies
 
-        for (var i = 0; i < allFrequentlies.length; i++) {
-            for (var j = 0; j < this.state.today.frequentlies.length; j++) {
-                if (this.equalIDs(allFrequentlies[i].id, this.state.today.frequentlies[j].id)) {
+        let date = new Date()
 
+        if (
+            date.getDate() === this.state.date.getDate()
+            &&
+            date.getMonth() === this.state.date.getMonth()
+            &&
+            date.getFullYear() === this.state.date.getFullYear()
+        )
 
-                    if (allFrequentlies[i].subtasks.length === this.state.today.frequentlies[j].subtasks.length) {
-                        allFrequentlies[i]['subtasksDone'] = this.state.today.frequentlies[j].subtasksDone
-                        allFrequentlies[i].done = this.state.today.frequentlies[j].done
+            for (var i = 0; i < allFrequentlies.length; i++) {
+                for (var j = 0; j < this.state.today.frequentlies.length; j++) {
+                    if (this.equalIDs(allFrequentlies[i].id, this.state.today.frequentlies[j].id)) {
+                        if (allFrequentlies[i].subtasks.length === this.state.today.frequentlies[j].subtasks.length) {
+                            allFrequentlies[i]['subtasksDone'] = this.state.today.frequentlies[j].subtasksDone
+                            allFrequentlies[i].done = this.state.today.frequentlies[j].done
+                        }
                     }
-
-
-
-
-                    // allFrequentlies.splice(i,1,this.state.today.frequentlies[j])
                 }
             }
-        }
 
         let frequentlies = []
         for (var i = 0; i < allFrequentlies.length; i++) {
@@ -326,7 +338,7 @@ class TodayScreen extends React.Component {
             }
 
         }
-
+        
         return frequentlies
     }
 
@@ -355,6 +367,105 @@ class TodayScreen extends React.Component {
 
         this.setState({ today: today, diaryModalVisible: false, image: image });
         this.saveDay()
+    }
+
+    saveTracker = async (value) => {
+        let tracker = this.state.selectedTracker
+        let trackers = this.props.screenProps.trackers
+        let today = new Date()
+        let year = today.getFullYear()
+        let month = today.getMonth() + 1
+        let day = today.getDate()
+        outer: for (var i = 0; i < trackers.length; i++) {
+            if (this.equalIDs(trackers[i].id, tracker.id)) {
+
+                for (var j = 0; j < trackers[i].years.length; j++) {
+                    if (trackers[i].years[j].year === year) {
+
+                        for (var k = 0; k < trackers[i].years[j].months.length; k++) {
+                            if (trackers[i].years[j].months[k].month === month) {
+
+                                for (var l = 0; l < trackers[i].years[j].months[k].days.length; l++) {
+                                    if (trackers[i].years[j].months[k].days[l].day === day) {
+                                        trackers[i].years[j].months[k].days[l].value = value
+                                        break outer
+                                    }
+                                }
+                                let dayTracker = {
+                                    day: day,
+                                    value: value
+                                }
+                                trackers[i].years[j].months[k].days.push(dayTracker)
+                                trackers[i].years[j].months[k].days = trackers[i].years[j].months[k].days.sort((a, b) => {
+                                    return -(a.day - b.day)
+                                })
+                                trackers[i].years[j].months[k].monthlyAverage = this.getMonthlyAverage(trackers[i].years[j].months[k].days)
+                                break outer
+                            }
+                        }
+                        let dayTracker = {
+                            day: day,
+                            value: value
+                        }
+                        let monthTracker = {
+                            month: month,
+                            monthlyAverage: dayTracker.value,
+                            days: [dayTracker]
+                        }
+                        trackers[i].years[j].months.push(monthTracker)
+                        trackers[i].years[j].months = trackers[i].years[j].months.sort((a, b) => {
+                            return -(a.month - b.month)
+                        })
+                        trackers[i].years[j].monthlyAverage = this.getYearlyAverage(trackers[i].years[j].months)
+                        break outer
+                    }
+                }
+
+                let dayTracker = {
+                    day: day,
+                    value: value
+                }
+                let monthTracker = {
+                    month: month,
+                    monthlyAverage: dayTracker.value,
+                    days: [dayTracker]
+                }
+                let yearTracker = {
+                    year: year,
+                    yearlyAverage: monthTracker.monthlyAverage,
+                    months: [monthTracker]
+                }
+                trackers[i].years.push(yearTracker)
+                trackers[i].years = trackers[i].years.sort((a, b) => {
+                    return -(a.year - b.year)
+                })
+                break outer
+            }
+        }
+
+        await AsyncStorage.setItem('trackers', JSON.stringify(trackers))
+        this.props.screenProps.updateTrackers(trackers)
+
+
+    }
+
+    getMonthlyAverage = (days) => {
+        let total = 0
+        for (var i = 0; i < days.length; i++) {
+            total += days[i].value
+        }
+        let average = (total * 1.0) / days.length
+        return average
+    }
+
+
+    getYearlyAverage = (months) => {
+        let total = 0
+        for (var i = 0; i < months.length; i++) {
+            total += motnhs[i].monthlyAverage
+        }
+        let average = (total * 1.0) / days.length
+        return average
     }
 
 
@@ -457,6 +568,10 @@ class TodayScreen extends React.Component {
                 if (frequently.subtasksDone[i])
                     subtasksDone += 1
             }
+            if (!frequently.icon) {
+                frequently['icon'] = icons[0]
+                frequently['iconColor'] = iconsColors[0]
+            }
 
             if (index < 5 || (this.state.frequentliesShowMore))
 
@@ -466,7 +581,15 @@ class TodayScreen extends React.Component {
                     <TouchableOpacity style={styles.frequently} activeOpacity={1} >
                         <View style={styles.body}>
                             <View style={{ flexDirection: 'row' }}>
-                                <LinearGradient colors={colors} style={styles.gradient} />
+                                {/* <LinearGradient colors={colors} style={styles.gradient} /> */}
+                                {
+                                    frequently.icon.type === "FontAwesome" ?
+                                        <FontAwesome name={frequently.icon.name} size={0.8 * frequently.icon.size * Dimensions.get('screen').height} style={{ alignSelf: 'center', }} color={frequently.iconColor} />
+                                        :
+                                        frequently.icon.type === 'FontAwesome5' ?
+                                            <FontAwesome5 name={frequently.icon.name} size={0.8 * frequently.icon.size * Dimensions.get('screen').height} style={{ alignSelf: 'center', }} color={frequently.iconColor} />
+                                            :
+                                            null}
                                 <View>
                                     <Text style={styles.title}>{frequently.title}</Text>
                                     {frequently.description.length === 0 ? null : <Text style={styles.text}>{frequently.description}</Text>}
@@ -492,6 +615,128 @@ class TodayScreen extends React.Component {
                         {this.state.subtasksOpen[index] ? this.getSubtasks(frequently, index) : null}
                     </View>
                 </View>
+                )
+        })
+    }
+
+    getTrackers = () => {
+        return this.props.screenProps.trackers.map((tracker, index) => {
+            const styles = StyleSheet.create({
+                body: {
+                    width: 0.68 * Dimensions.get('screen').width,
+                    backgroundColor: this.props.screenProps.colors["greyishBackColor"],
+                    alignSelf: 'center',
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    paddingLeft: 0.02 * Dimensions.get('screen').width > 23 ? 23 : 0.02 * Dimensions.get('screen').width,
+                    marginTop: 0.006 * Dimensions.get('screen').height > 6 ? 6 : 0.006 * Dimensions.get('screen').height,
+                    marginBottom: 0.006 * Dimensions.get('screen').height > 6 ? 6 : 0.006 * Dimensions.get('screen').height,
+                    flex: 1,
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    borderColor: this.props.screenProps.colors["themeColor"]
+                },
+                name: {
+                    color: this.props.screenProps.colors["textColor"],
+                    fontSize: 0.024 * Dimensions.get('screen').height > 24 ? 24 : 0.024 * Dimensions.get('screen').height,
+                    paddingLeft: 0.02 * Dimensions.get('screen').width > 23 ? 23 : 0.02 * Dimensions.get('screen').width
+
+                },
+                text: {
+                    fontSize: 0.016 * Dimensions.get('screen').height > 16 ? 16 : 0.016 * Dimensions.get('screen').height,
+                    color: this.props.screenProps.colors["textColor"] + 'aa',
+                    paddingLeft: 0.03 * Dimensions.get('screen').width > 20 ? 20 : 0.03 * Dimensions.get('screen').width,
+                    paddingTop: 0.006 * Dimensions.get('screen').height > 6 ? 6 : 0.006 * Dimensions.get('screen').height
+
+                },
+
+                tracker: {
+                    width: 0.9 * Dimensions.get('screen').width,
+                    backgroundColor: this.props.screenProps.colors["greyishBackColor"],
+                    borderBottomWidth: 2,
+                    borderBottomColor: this.props.screenProps.colors["themeColor"],
+                    flexDirection: 'row',
+                    minHeight: 1,
+                    borderLeftColor: this.props.screenProps.colors["backColor"],
+                    borderLeftWidth: 1,
+                    borderRightColor: this.props.screenProps.colors["backColor"],
+                    borderRightWidth: 1,
+                    alignSelf: 'center',
+                },
+                unit: {
+                    fontSize: 0.018 * Dimensions.get('screen').height > 18 ? 18 : 0.018 * Dimensions.get('screen').height,
+                    color: this.props.screenProps.colors["textColor"] + 'aa',
+                    paddingRight: 0.03 * Dimensions.get('screen').width > 20 ? 20 : 0.03 * Dimensions.get('screen').width,
+                    paddingTop: 0.003 * Dimensions.get('screen').height
+                },
+                value: {
+                    fontSize: 0.025 * Dimensions.get('screen').height,
+                    color: this.props.screenProps.colors["textColor"],
+                    paddingRight: 0.03 * Dimensions.get('screen').width > 20 ? 20 : 0.03 * Dimensions.get('screen').width,
+                }
+            })
+
+
+            let id = "";
+            for (var i = 0; i < 32; i++) {
+                id += tracker.id[i] + ','
+            }
+
+            if (!tracker.icon) {
+                tracker['icon'] = icons[0]
+                tracker['iconColor'] = iconsColors[0]
+            }
+
+            let today = new Date()
+            let year = today.getFullYear()
+
+            let value = null
+
+            outer: for (var i = 0; i < tracker.years.length; i++) {
+                if (tracker.years[i].year === year) {
+                    let month = today.getMonth() + 1
+                    for (var j = 0; j < tracker.years[i].months.length; j++) {
+                        if (tracker.years[i].months[j].month === month) {
+                            let day = today.getDate()
+                            for (var k = 0; k < tracker.years[i].months[j].days.length; k++) {
+                                if (tracker.years[i].months[j].days[k].day === day) {
+                                    value = tracker.years[i].months[j].days[k].value
+                                    break outer
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+
+
+            if (index < 5 || (this.state.trackersShowMore))
+
+
+                return (<View key={id}>
+
+                    <TouchableOpacity style={styles.tracker} activeOpacity={1} onPress={() => this.setState({ selectedTracker: tracker, valueForTrackerModalVisible: true, latestValueForSelectedTracker: value })} >
+                        <View style={styles.body}>
+                            <View style={{ flexDirection: 'row' }}>
+                                {
+                                    tracker.icon.type === "FontAwesome" ?
+                                        <FontAwesome name={tracker.icon.name} size={0.8 * tracker.icon.size * Dimensions.get('screen').height} style={{ alignSelf: 'center', }} color={tracker.iconColor} />
+                                        :
+                                        tracker.icon.type === 'FontAwesome5' ?
+                                            <FontAwesome5 name={tracker.icon.name} size={0.8 * tracker.icon.size * Dimensions.get('screen').height} style={{ alignSelf: 'center', }} color={tracker.iconColor} />
+                                            :
+                                            null}
+                                <Text style={styles.name}>{tracker.name}</Text>
+                            </View>
+                            <View style={{ flexDirection: 'row' }}>
+                                <Text style={styles.value}>{value ? value : "-"}</Text>
+                                <Text style={styles.unit}>{tracker.unit}</Text>
+                            </View>
+                        </View>
+                    </TouchableOpacity>
+                </View>
+
                 )
         })
     }
@@ -589,10 +834,11 @@ class TodayScreen extends React.Component {
         this.saveDay()
     }
 
-    
+
 
 
     render = () => {
+        console.log(this.props.screenProps.trackers)
         const styles = StyleSheet.create({
             fullscreen: {
                 flex: 1,
@@ -741,6 +987,23 @@ class TodayScreen extends React.Component {
                 textAlign: 'center',
                 paddingHorizontal: (2 / 10.0) * Dimensions.get('screen').width > 16 ? 16 : (2 / 10.0) * Dimensions.get('screen').width,
                 paddingVertical: (1 / 80.0) * Dimensions.get('screen').height > 7 ? 7 : (1 / 80.0) * Dimensions.get('screen').height,
+            },
+            changeOrder: {
+                backgroundColor: this.props.screenProps.colors.greyishBackColor,
+                width: 0.9 * Dimensions.get('screen').width,
+                height: 0.05 * Dimensions.get('screen').height,
+                alignSelf: "center",
+                borderRadius: 25,
+                borderColor: this.props.screenProps.colors.themeColor,
+                borderWidth: 1,
+                marginTop: 0.03 * Dimensions.get('screen').height
+            },
+            changeOrderText: {
+                fontFamily: this.props.screenProps.fontFamily,
+                textAlign: 'center',
+                textAlignVertical: 'center',
+                color: this.props.screenProps.colors.themeColor,
+                fontSize: 0.028 * Dimensions.get('screen').height
             }
 
         })
@@ -751,112 +1014,218 @@ class TodayScreen extends React.Component {
                 <Card containerStyle={styles.titleCard}>
                     <Text style={styles.title}>Today</Text>
                 </Card>
-                <ScrollView style={styles.scrollView} >
-                    <View>
+                <KeyboardAwareScrollView style={styles.scrollView} >
 
-                        <View style={styles.titleView}>
-                            <Text style={styles.titleText}>Quote of the day</Text>
+                    {this.props.screenProps.todayOrder.map(component => {
+                        if (component === 'Quote')
+                            return (
+
+
+
+                                < View key={component}>
+
+                                    <View style={styles.titleView}>
+                                        <Text style={styles.titleText}>Quote of the day</Text>
+                                    </View>
+                                    <Card containerStyle={styles.card}>
+                                        <Text style={styles.quote}>{this.state.today.quote}</Text>
+                                    </Card>
+                                </View>
+                            )
+
+                        if (component === "Diary")
+                            return (
+                                <View key={component}>
+
+                                    <View style={[styles.titleView, { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 0, borderColor: this.state.today.diaryColors.length === 0 ? this.props.screenProps.colors["backColor"] : this.state.today.diaryColors[0], }]}>
+                                        <Text style={styles.titleText}>Diary</Text>
+                                        <TouchableOpacity onPress={() => this.setState({ diaryModalVisible: true })}>
+
+                                            <MaterialCommunityIcons name='notebook-multiple' color={this.props.screenProps.theme === 'Focus' ? this.props.screenProps.colors['backColor'] : '#ffffff'} size={0.08 * Dimensions.get('screen').width > 24 ? 24 : 0.08 * Dimensions.get('screen').width} style={{ paddingRight: 0.05 * Dimensions.get('screen').width > 15 ? 15 : 0.15 * Dimensions.get('screen').width, paddingTop: (1.75 / 80.0) * Dimensions.get('screen').height > 12 ? 12 : (1.75 / 80.0) * Dimensions.get('screen').height }} />
+                                        </TouchableOpacity>
+                                    </View>
+                                    <View style={styles.diaryBody}>
+                                        <LinearGradient start={[0.0, 0.0]} end={[1.0, 1.0]} colors={this.state.today.diaryColors.length === 0 ? [this.props.screenProps.colors['greyishBackColor'], this.props.screenProps.colors['greyishBackColor']] : this.state.today.diaryColors}>
+                                            {this.state.image ? <Image source={{ uri: `data:image/jpg;base64,${this.state.image}` }} style={styles.image} /> : null}
+
+                                            <Text style={styles.diary}>{this.state.today.diary !== '' ? this.state.today.diary : "You haven't written anything about today :("}</Text>
+                                        </LinearGradient>
+                                    </View>
+                                    <DiaryModal theme={this.props.screenProps.theme} mode={this.props.screenProps.mode} colors={this.props.screenProps.colors} fontFamily={this.props.screenProps.fontFamily} modalVisible={this.state.diaryModalVisible} closeModal={() => this.setState({ diaryModalVisible: false })} diary={this.state.today.diary} saveDiary={this.saveDiary} diaryColors={this.state.today.diaryColors} saveDiaryColors={this.saveDiaryColors} diaryFont={this.state.diaryFont} saveDiaryFont={this.saveDiaryFont} image={this.state.image} removeImage={() => { this.setState({ image: null }) }} />
+                                </View>
+                            )
+
+                        if (component === 'Frequentlies')
+                            return (
+                                <View key={component}>
+
+                                    <View style={[styles.titleView, { marginBottom: 0 }]}>
+                                        <Text style={styles.titleText}>Frequentlies</Text>
+
+                                    </View>
+                                    {this.getFrequentlies()}
+
+                                    {
+                                        this.state.today.frequentlies.length <= 5 && this.state.today.frequentlies.length > 0 ?
+                                            <View style={styles.frequentliesLessThan5} /> : null
+                                    }
+
+                                    {
+                                        this.state.today.frequentlies.length === 0 ?
+                                            <View style={styles.noFrequentlies}>
+                                                <Text style={styles.noFrequentliesText}>No Frequentlies for Today</Text>
+                                            </View>
+                                            : null
+                                    }
+
+                                    {
+                                        this.state.today.frequentlies.length > 5 ?
+                                            this.state.frequentliesShowMore ?
+                                                <TouchableOpacity style={styles.showMore} onPress={() => { this.setState({ frequentliesShowMore: false }) }} activeOpacity={0.7}>
+                                                    <Text style={styles.showMoreText}>Show Less</Text>
+                                                </TouchableOpacity>
+                                                :
+                                                <TouchableOpacity style={styles.showMore} onPress={() => { this.setState({ frequentliesShowMore: true }) }} activeOpacity={0.7}>
+                                                    <Text style={styles.showMoreText}>Show More</Text>
+                                                </TouchableOpacity>
+                                            :
+                                            null
+                                    }
+                                </View>
+                            )
+
+                        if (component === 'Statistics')
+                            return (
+                                <View key={component}>
+
+                                    <View style={[styles.titleView, { marginBottom: 0 }]}>
+                                        <Text style={styles.titleText}>Statistics</Text>
+                                    </View>
+                                    <View style={{
+                                        borderBottomRightRadius: 25,
+                                        borderBottomLeftRadius: 25,
+                                        height: 0.325 * Dimensions.get('screen').height,
+                                        backgroundColor: this.props.screenProps.colors['greyishBackColor'],
+                                        width: 0.9 * Dimensions.get('screen').width,
+                                        alignSelf: 'center',
+                                    }}>
+
+                                        <ProgressChart
+                                            data={{
+                                                labels: ["Frequentlies"], // optional
+                                                data: [this.state.frequentliesPercentageCurrent ? this.state.frequentliesPercentageCurrent : 0]//[this.state.today.frequentlies.length > 0 ? this.state.frequentliesDone / (this.state.today.frequentlies.length * 1.0) : 1]
+                                            }}
+                                            width={0.9 * Dimensions.get('screen').width}
+                                            height={0.3 * Dimensions.get('screen').height}
+                                            strokeWidth={0.07 * Dimensions.get('screen').width > 32 ? 32 : 0.07 * Dimensions.get('screen').width}
+                                            radius={0.14 * Dimensions.get('screen').width > 64 ? 64 : 0.14 * Dimensions.get('screen').width}
+                                            chartConfig={{
+                                                backgroundGradientFrom: this.props.screenProps.colors['greyishBackColor'],
+                                                backgroundGradientFromOpacity: 1,
+                                                backgroundGradientTo: this.props.screenProps.colors['greyishBackColor'],
+                                                backgroundGradientToOpacity: 1,
+                                                color: (opacity = 1) => { return this.props.screenProps.theme === "Galaxy" ? `rgba(128, 0, 128, ${opacity})` : this.props.screenProps.theme === "Nature" ? `rgba(83, 131, 59, ${opacity})` : this.props.screenProps.theme === "Sea" ? `rgba(0, 105, 148, ${opacity})` : this.props.screenProps.theme === "Fire" ? `rgba(206,32,41,${opacity})` : this.props.screenProps.theme === "Sunflower" ? `rgba(232,222,42,${opacity})` : this.props.screenProps.mode === 'dark' ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})` },
+                                                barPercentage: 0.5,
+                                                useShadowColorFromDataset: false, // optional
+                                                propsForLabels: {
+                                                    fontFamily: this.props.screenProps.fontFamily,
+                                                    fontSize: 0.009 * Dimensions.get('screen').height
+
+                                                },
+                                                labelColor: (opacity = 1) => { return this.props.screenProps.mode === 'dark' ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})` }
+                                            }}
+                                            hideLegend={false}
+
+
+                                        />
+                                    </View>
+                                </View>
+
+                            )
+                        if (component === 'Trackers')
+                            return (
+                                <View key={component}>
+                                    <View style={[styles.titleView, { marginBottom: 0 }]}>
+                                        <Text style={styles.titleText}>Trackers</Text>
+                                    </View>
+
+
+
+                                    {this.getTrackers()}
+
+                                    {
+                                        this.props.screenProps.trackers.length <= 5 && this.props.screenProps.trackers.length > 0 ?
+                                            <View style={styles.frequentliesLessThan5} /> : null
+                                    }
+
+                                    {
+                                        this.props.screenProps.trackers.length === 0 ?
+                                            <View style={styles.noFrequentlies}>
+                                                <Text style={styles.noFrequentliesText}>No Trackers</Text>
+                                            </View>
+                                            : null
+                                    }
+
+                                    {this.props.screenProps.trackers.length > 0 ? <ValueForTrackerModal
+                                        colors={this.props.screenProps.colors}
+                                        mode={this.props.screenProps.mode}
+                                        theme={this.props.screenProps.theme}
+                                        selectedTracker={this.state.selectedTracker}
+                                        modalVisible={this.state.valueForTrackerModalVisible}
+                                        close={() => this.setState({ valueForTrackerModalVisible: false })}
+                                        save={this.saveTracker}
+                                        fontFamily={this.props.screenProps.fontFamily}
+                                        latestValueForSelectedTracker={this.state.latestValueForSelectedTracker}
+                                    />
+                                        : null}
+
+                                    {
+                                        this.props.screenProps.trackers.length > 5 ?
+                                            this.state.trackersShowMore ?
+                                                <TouchableOpacity style={styles.showMore} onPress={() => { this.setState({ trackersShowMore: false }) }} activeOpacity={0.7}>
+                                                    <Text style={styles.showMoreText}>Show Less</Text>
+                                                </TouchableOpacity>
+                                                :
+                                                <TouchableOpacity style={styles.showMore} onPress={() => { this.setState({ trackersShowMore: true }) }} activeOpacity={0.7}>
+                                                    <Text style={styles.showMoreText}>Show More</Text>
+                                                </TouchableOpacity>
+                                            :
+                                            null
+                                    }
+
+                                </View>
+                            )
+                    })}
+
+                    <TouchableOpacity style={styles.changeOrder} onPress={() => this.setState({ arrangeTodayScreenModalVisible: true })}>
+                        <View style={{
+                            flexDirection: 'row',
+                            justifyContent: 'center'
+                        }}>
+
+                            <Text style={styles.changeOrderText}>
+                                {"Change Order   "}
+                            </Text>
+                            <AntDesign
+                                name={'edit'}
+                                color={this.props.screenProps.colors.themeColor}
+                                size={0.03 * Dimensions.get('screen').height}
+                                style={{
+                                    paddingTop: 0.006 * Dimensions.get('screen').height
+                                }}
+                            />
+
+
                         </View>
-                        <Card containerStyle={styles.card}>
-                            <Text style={styles.quote}>{this.state.today.quote}</Text>
-                        </Card>
-                    </View>
-                    <View>
+                    </TouchableOpacity>
 
-                        <View style={[styles.titleView, { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 0, borderColor: this.state.today.diaryColors.length === 0 ? this.props.screenProps.colors["backColor"] : this.state.today.diaryColors[0], }]}>
-                            <Text style={styles.titleText}>Diary</Text>
-                            <TouchableOpacity onPress={() => this.setState({ diaryModalVisible: true })}>
-
-                                <MaterialCommunityIcons name='notebook-multiple' color={this.props.screenProps.theme === 'Focus' ? this.props.screenProps.colors['backColor'] : '#ffffff'} size={0.08 * Dimensions.get('screen').width > 24 ? 24 : 0.08 * Dimensions.get('screen').width} style={{ paddingRight: 0.05 * Dimensions.get('screen').width > 15 ? 15 : 0.15 * Dimensions.get('screen').width, paddingTop: (1.75 / 80.0) * Dimensions.get('screen').height > 12 ? 12 : (1.75 / 80.0) * Dimensions.get('screen').height }} />
-                            </TouchableOpacity>
-                        </View>
-                        <View style={styles.diaryBody}>
-                            <LinearGradient start={[0.0, 0.0]} end={[1.0, 1.0]} colors={this.state.today.diaryColors.length === 0 ? [this.props.screenProps.colors['greyishBackColor'], this.props.screenProps.colors['greyishBackColor']] : this.state.today.diaryColors}>
-                                {this.state.image ? <Image source={{ uri: `data:image/jpg;base64,${this.state.image}` }} style={styles.image} /> : null}
-
-                                <Text style={styles.diary}>{this.state.today.diary !== '' ? this.state.today.diary : "You haven't written anything about today :("}</Text>
-                            </LinearGradient>
-                        </View>
-                    </View>
-
-                    <DiaryModal theme={this.props.screenProps.theme} mode={this.props.screenProps.mode} colors={this.props.screenProps.colors} fontFamily={this.props.screenProps.fontFamily} modalVisible={this.state.diaryModalVisible} closeModal={() => this.setState({ diaryModalVisible: false })} diary={this.state.today.diary} saveDiary={this.saveDiary} diaryColors={this.state.today.diaryColors} saveDiaryColors={this.saveDiaryColors} diaryFont={this.state.diaryFont} saveDiaryFont={this.saveDiaryFont} image={this.state.image} removeImage={() => { this.setState({ image: null }) }} />
-
-                    <View style={[styles.titleView, { marginBottom: 0 }]}>
-                        <Text style={styles.titleText}>Frequentlies</Text>
-
-                    </View>
-                    {this.getFrequentlies()}
-
-                    {this.state.today.frequentlies.length <= 5 && this.state.today.frequentlies.length > 0 ?
-                        <View style={styles.frequentliesLessThan5} /> : null}
-
-                    {this.state.today.frequentlies.length === 0 ?
-                        <View style={styles.noFrequentlies}>
-                            <Text style={styles.noFrequentliesText}>No Frequentlies for Today</Text>
-                        </View>
-                        : null}
-
-                    {this.state.today.frequentlies.length > 5 ?
-                        this.state.frequentliesShowMore ?
-                            <TouchableOpacity style={styles.showMore} onPress={() => { this.setState({ frequentliesShowMore: false }) }} activeOpacity={0.7}>
-                                <Text style={styles.showMoreText}>Show Less</Text>
-                            </TouchableOpacity>
-                            :
-                            <TouchableOpacity style={styles.showMore} onPress={() => { this.setState({ frequentliesShowMore: true }) }} activeOpacity={0.7}>
-                                <Text style={styles.showMoreText}>Show More</Text>
-                            </TouchableOpacity>
-                        :
-                        null
-                    }
-
-                    <View style={[styles.titleView, { marginBottom: 0 }]}>
-                        <Text style={styles.titleText}>Statistics</Text>
-                    </View>
-                    <View style={{
-                        borderBottomRightRadius: 25,
-                        borderBottomLeftRadius: 25,
-                        height: 0.325 * Dimensions.get('screen').height,
-                        backgroundColor: this.props.screenProps.colors['greyishBackColor'],
-                        width: 0.9 * Dimensions.get('screen').width,
-                        alignSelf: 'center',
-                    }}>
-
-                        <ProgressChart
-                            data={{
-                                labels: ["Frequentlies"], // optional
-                                data: [this.state.frequentliesPercentageCurrent]//[this.state.today.frequentlies.length > 0 ? this.state.frequentliesDone / (this.state.today.frequentlies.length * 1.0) : 1]
-                            }}
-                            width={0.9 * Dimensions.get('screen').width}
-                            height={0.3 * Dimensions.get('screen').height}
-                            strokeWidth={0.07 * Dimensions.get('screen').width>32?32:0.07*Dimensions.get('screen').width}
-                            radius={0.14 * Dimensions.get('screen').width>64?64:0.14*Dimensions.get('screen').width}
-                            chartConfig={{
-                                backgroundGradientFrom: this.props.screenProps.colors['greyishBackColor'],
-                                backgroundGradientFromOpacity: 1,
-                                backgroundGradientTo: this.props.screenProps.colors['greyishBackColor'],
-                                backgroundGradientToOpacity: 1,
-                                color: (opacity = 1) => { return this.props.screenProps.theme === "Galaxy" ? `rgba(128, 0, 128, ${opacity})` : this.props.screenProps.theme === "Nature" ? `rgba(83, 131, 59, ${opacity})` : this.props.screenProps.theme === "Sea" ? `rgba(0, 105, 148, ${opacity})` : this.props.screenProps.theme === "Fire" ? `rgba(206,32,41,${opacity})` : this.props.screenProps.theme === "Sunflower" ? `rgba(232,222,42,${opacity})` : this.props.screenProps.mode === 'dark' ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})` },
-                                barPercentage: 0.5,
-                                useShadowColorFromDataset: false, // optional
-                                propsForLabels: {
-                                    fontFamily: this.props.screenProps.fontFamily,
-                                    fontSize: 0.009 * Dimensions.get('screen').height
-
-                                },
-                                labelColor: (opacity = 1) => { return this.props.screenProps.mode === 'dark' ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})` }
-                            }}
-                            hideLegend={false}
-
-
-                        />
-                    </View>
-
+                    <ArrangeTodayScreenModal mode={this.props.screenProps.mode} theme={this.props.screenProps.theme} colors={this.props.screenProps.colors} modalVisible={this.state.arrangeTodayScreenModalVisible} closeModal={() => { this.setState({ arrangeTodayScreenModalVisible: false }) }} fontFamily={this.props.screenProps.fontFamily} todayOrder={this.props.screenProps.todayOrder} changeTodayOrder={this.props.screenProps.changeTodayOrder} />
 
                     <View style={{ height: 0.08 * Dimensions.get('screen').height > 60 ? 60 : 0.08 * Dimensions.get('screen').height }} />
-                </ScrollView>
+                </KeyboardAwareScrollView>
             </LinearGradient>
             <View style={styles.navigator}></View>
-        </View>)
+        </View >)
     }
 
 }

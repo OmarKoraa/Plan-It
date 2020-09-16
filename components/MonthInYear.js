@@ -67,23 +67,33 @@ class MonthInYear extends React.Component {
             days.push(0)
         }
         return days.map((day, index) => {
-            let today = this.props.todayDate.getDate() === day && this.props.todayDate.getMonth() + 1 === this.props.startOfMonth.getMonth() + 1 && this.props.todayDate.getFullYear() === this.props.startOfMonth.getFullYear()
+            let today = this.props.todayDate.getDate() === day
+                &&
+                this.props.todayDate.getMonth() + 1 === this.props.startOfMonth.getMonth() + 1
+                &&
+                this.props.todayDate.getFullYear() === this.props.startOfMonth.getFullYear()
+
             const styles = StyleSheet.create({
                 day: {
 
                     fontFamily: this.props.fontFamily,
-                    color: today? this.props.theme === 'Focus' ? this.props.colors['backColor'] : this.props.colors['themeColor'] : this.props.colors['textColor'],
+                    color: today ? this.props.theme === 'Focus' ? this.props.colors['backColor'] : this.props.colors['themeColor'] : this.props.colors['textColor'],
                     textShadowColor: today ? this.props.theme === 'Focus' ? this.props.colors['themeColor'] : this.props.colors['backColor'] : this.props.colors['backColor'],
                     textShadowRadius: 1.5,
-                    fontSize: 0.013*Dimensions.get('screen').height
+                    fontSize: 0.013 * Dimensions.get('screen').height
                 }
             })
-            return (<View style={{ width: "14%" }} key={index}>
+            return (
+                <View
+                    style={{ width: "14%" }}
+                    key={index}
+                >
 
-                <Text style={styles.day} >
-                    {day !== 0 ? "" + day : ""}
-                </Text>
-            </View>)
+                    <Text style={styles.day} >
+                        {day !== 0 ? "" + day : ""}
+                    </Text>
+                </View>
+            )
         })
     }
 
@@ -106,7 +116,7 @@ class MonthInYear extends React.Component {
                 textShadowColor: this.props.thisMonth ? this.props.theme === 'Focus' ? this.props.colors['themeColor'] : this.props.colors['backColor'] : this.props.colors['backColor'],
                 textShadowRadius: 1.5,
                 paddingTop: 0.02 * Dimensions.get('screen').width,
-                paddingLeft:0.02 * Dimensions.get('screen').width,
+                paddingLeft: 0.02 * Dimensions.get('screen').width,
                 fontSize: 0.025 * Dimensions.get('screen').height
             },
             daysHolder: {
@@ -116,12 +126,17 @@ class MonthInYear extends React.Component {
                 alignSelf: 'center',
                 justifyContent: 'space-evenly',
                 marginLeft: 0.015 * Dimensions.get('screen').width,
-                height:0.15 * Dimensions.get('screen').height
+                height: 0.15 * Dimensions.get('screen').height
             }
         })
         return (
-            <TouchableOpacity style={styles.wholeMonth} onPress={this.props.selectMonth}>
-                <Text style={styles.monthName}>{this.getMonthName(this.props.startOfMonth.getMonth() + 1)}</Text>
+            <TouchableOpacity
+                style={styles.wholeMonth}
+                onPress={this.props.selectMonth}
+            >
+                <Text style={styles.monthName}>
+                    {this.getMonthName(this.props.startOfMonth.getMonth() + 1)}
+                </Text>
                 <View style={styles.daysHolder}>
                     {this.getDays()}
                 </View>

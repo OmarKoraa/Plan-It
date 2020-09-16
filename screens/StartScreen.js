@@ -14,6 +14,7 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 
 
 
+
 class StartScreen extends React.Component {
     constructor(props) {
         super(props);
@@ -35,6 +36,7 @@ class StartScreen extends React.Component {
             if (result) {
                 this.setState({ firstTime: false })
             }
+            
         })
         AsyncStorage.getItem("userName", (err, result) => {
             if (result) {

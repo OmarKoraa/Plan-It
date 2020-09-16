@@ -30,13 +30,25 @@ class ChangePasswordModal extends React.Component {
 
     confirm = async (pass) => {
         if (this.state.newPassword !== pass) {
-            this.setState({ enterNewPassword: true, newPassword: "", newPassword2: "", confirmNewPassword: false })
+            this.setState({
+                enterNewPassword: true,
+                newPassword: "",
+                newPassword2: "",
+                confirmNewPassword: false
+            })
             this.startShake()
             return
         }
         await AsyncStorage.removeItem("pass")
         await AsyncStorage.setItem("pass", pass)
-        this.setState({ enterPassword: true, enterNewPassword: false, password: "", newPassword: "", newPassword2: "", confirmNewPassword: false })
+        this.setState({
+            enterPassword: true,
+            enterNewPassword: false,
+            password: "",
+            newPassword: "",
+            newPassword2: "",
+            confirmNewPassword: false
+        })
         this.props.closeModal()
     }
     wait = (timeout) => {
@@ -53,17 +65,32 @@ class ChangePasswordModal extends React.Component {
             this.startShake()
         }
         else {
-            this.setState({ enterPassword: false, enterNewPassword: true, password: "" })
+            this.setState({
+                enterPassword: false,
+                enterNewPassword: true,
+                password: ""
+            })
         }
     }
 
     cancel2 = () => {
-        this.setState({ enterPassword: true, enterNewPassword: false, password: "", newPassword: "" })
+        this.setState({
+            enterPassword: true,
+            enterNewPassword: false,
+            password: "",
+            newPassword: ""
+        })
         this.props.closeModal()
     }
 
     cancel3 = () => {
-        this.setState({ enterPassword: true, enterNewPassword: false, password: "", newPassword: "", newPassword2: "", confirmNewPassword: false })
+        this.setState({
+            enterPassword: true,
+            enterNewPassword: false,
+            password: "", newPassword: "",
+            newPassword2: "",
+            confirmNewPassword: false
+        })
         this.props.closeModal()
     }
 
@@ -82,7 +109,10 @@ class ChangePasswordModal extends React.Component {
                 return
             }
         }
-        this.setState({ enterNewPassword: false, confirmNewPassword: true })
+        this.setState({
+            enterNewPassword: false,
+            confirmNewPassword: true
+        })
     }
 
     startShake = () => {
@@ -121,7 +151,7 @@ class ChangePasswordModal extends React.Component {
             },
             text: {
                 fontSize: 0.025 * Dimensions.get('screen').height > 25 ? 25 : 0.025 * Dimensions.get('screen').height,
-                color: this.props.theme==='Focus'?this.props.colors['backColor']:'white',
+                color: this.props.theme === 'Focus' ? this.props.colors['backColor'] : 'white',
                 fontFamily: this.props.fontFamily,
                 paddingTop: (1 / 80.0) * Dimensions.get('screen').height > 6 ? 6 : (1 / 80.0) * Dimensions.get('screen').height,
             },
@@ -137,7 +167,7 @@ class ChangePasswordModal extends React.Component {
                 fontSize: 0.018 * Dimensions.get('screen').height,
                 fontFamily: this.props.fontFamily,
                 paddingTop: 0.015 * Dimensions.get('screen').height > 10 ? 10 : 0.015 * Dimensions.get('screen').height,
-                color:  this.props.theme==='Focus'?this.props.colors['backColor']:'white'
+                color: this.props.theme === 'Focus' ? this.props.colors['backColor'] : 'white'
             },
             titleView: {
                 flexDirection: "row",
@@ -162,83 +192,168 @@ class ChangePasswordModal extends React.Component {
                 visible={this.props.modalVisible}
 
             >
+                <View style={{ backgroundColor: '#000000aa', width: Dimensions.get('screen').width, minHeight: Dimensions.get('screen').height }}>
 
-                <TouchableHighlight activeOpacity={1} underlayColor={'#00000000'} style={{ backgroundColor: 'transparent', height: 0.23 * Dimensions.get('screen').height }} onPress={() => this.props.closeModal()} activeOpacity={1}>
-                    <View />
-                </TouchableHighlight>
+                    <TouchableHighlight
+                        activeOpacity={1}
+                        underlayColor={'#00000000'}
+                        style={{
+                            backgroundColor: 'transparent',
+                            height: 0.23 * Dimensions.get('screen').height
+                        }}
+                        onPress={() => this.props.closeModal()}
+                        activeOpacity={1}
+                    >
+                        <View />
+                    </TouchableHighlight>
 
-                {this.state.enterPassword ?
-                    <View>
+                    {this.state.enterPassword ?
+                        <View>
 
-                        <View style={styles.titleView}>
-                            <TouchableHighlight onPress={this.cancel} activeOpacity={1} underlayColor={'#00000000'} ><Text style={styles.smallText}>Cancel</Text></TouchableHighlight>
-                            <Text style={styles.text}>Change Password</Text>
-                            <TouchableHighlight activeOpacity={1} underlayColor={'#00000000'} ><Text style={styles.smallText}>       </Text></TouchableHighlight>
-                        </View>
-                        <Card containerStyle={styles.card} >
-                            <Animated.View style={[{ flexDirection: "row", alignContent: 'center', justifyContent: 'center' }, { transform: [{ translateX: this.shakeAnimation }] }]}>
-                                <FontAwesome name={this.state.password.length < 1 ? "circle-o" : "circle"} size={0.08 * Dimensions.get('screen').width > 30 ? 30 : 0.08 * Dimensions.get('screen').width} color={this.props.colors["textColor"]} style={{ alignSelf: 'center', }} onPress={() => { this.pass.focus() }} />
-                                <FontAwesome name={this.state.password.length < 2 ? "circle-o" : "circle"} size={0.08 * Dimensions.get('screen').width > 30 ? 30 : 0.08 * Dimensions.get('screen').width} color={this.props.colors["textColor"]} style={{ alignSelf: 'center', paddingLeft: 0.045 * Dimensions.get('screen').width > 20 ? 20 : 0.045 * Dimensions.get('screen').width }} onPress={() => { this.pass.focus() }} />
-                                <FontAwesome name={this.state.password.length < 3 ? "circle-o" : "circle"} size={0.08 * Dimensions.get('screen').width > 30 ? 30 : 0.08 * Dimensions.get('screen').width} color={this.props.colors["textColor"]} style={{ alignSelf: 'center', paddingLeft: 0.045 * Dimensions.get('screen').width > 20 ? 20 : 0.045 * Dimensions.get('screen').width }} onPress={() => { this.pass.focus() }} />
-                                <FontAwesome name={this.state.password.length < 4 ? "circle-o" : "circle"} size={0.08 * Dimensions.get('screen').width > 30 ? 30 : 0.08 * Dimensions.get('screen').width} color={this.props.colors["textColor"]} style={{ alignSelf: 'center', paddingLeft: 0.045 * Dimensions.get('screen').width > 20 ? 20 : 0.045 * Dimensions.get('screen').width }} onPress={() => { this.pass.focus() }} />
-                                <TextInput selectionColor="#00000000" keyboardType={'numeric'} style={styles.pass} value={this.state.password} onChangeText={pass => { if (pass.length <= 4) this.setState({ password: pass }); if (pass.length === 4) this.pass12() }} ref={(input) => { this.pass = input; }} keyboardAppearance={this.props.mode} autoFocus={true} >
-                                </TextInput>
-                            </Animated.View>
+                            <View style={styles.titleView}>
+                                <TouchableHighlight
+                                    onPress={this.cancel}
+                                    activeOpacity={1}
+                                    underlayColor={'#00000000'}
+                                >
+                                    <Text style={styles.smallText}>
+                                        Cancel
+                                </Text>
+                                </TouchableHighlight>
 
-                            <Text style={styles.modalText}>Please enter your current password</Text>
+                                <Text style={styles.text}>Change Password</Text>
 
-                        </Card>
-                    </View> : null}
+                                <TouchableHighlight
+                                    activeOpacity={1}
+                                    underlayColor={'#00000000'}
+                                >
+                                    <Text style={styles.smallText}>       </Text>
+                                </TouchableHighlight>
+                            </View>
+                            <Card containerStyle={styles.card} >
+                                <Animated.View
+                                    style={
+                                        [
+                                            {
+                                                flexDirection: "row",
+                                                alignContent: 'center',
+                                                justifyContent: 'center'
+                                            },
+                                            {
+                                                transform: [{ translateX: this.shakeAnimation }]
+                                            }
+                                        ]
+                                    }
+                                >
+                                    <FontAwesome
+                                        name={this.state.password.length < 1 ? "circle-o" : "circle"}
+                                        size={0.08 * Dimensions.get('screen').width > 30 ? 30 : 0.08 * Dimensions.get('screen').width}
+                                        color={this.props.colors["textColor"]}
+                                        style={{ alignSelf: 'center', }}
+                                        onPress={() => { this.pass.focus() }}
+                                    />
+                                    <FontAwesome
+                                        name={this.state.password.length < 2 ? "circle-o" : "circle"}
+                                        size={0.08 * Dimensions.get('screen').width > 30 ? 30 : 0.08 * Dimensions.get('screen').width}
+                                        color={this.props.colors["textColor"]}
+                                        style={{
+                                            alignSelf: 'center',
+                                            paddingLeft: 0.045 * Dimensions.get('screen').width > 20 ? 20 : 0.045 * Dimensions.get('screen').width
+                                        }}
+                                        onPress={() => { this.pass.focus() }}
+                                    />
+                                    <FontAwesome
+                                        name={this.state.password.length < 3 ? "circle-o" : "circle"}
+                                        size={0.08 * Dimensions.get('screen').width > 30 ? 30 : 0.08 * Dimensions.get('screen').width}
+                                        color={this.props.colors["textColor"]} style={{
+                                            alignSelf: 'center',
+                                            paddingLeft: 0.045 * Dimensions.get('screen').width > 20 ? 20 : 0.045 * Dimensions.get('screen').width
+                                        }}
+                                        onPress={() => { this.pass.focus() }}
+                                    />
+                                    <FontAwesome
+                                        name={this.state.password.length < 4 ? "circle-o" : "circle"}
+                                        size={0.08 * Dimensions.get('screen').width > 30 ? 30 : 0.08 * Dimensions.get('screen').width}
+                                        color={this.props.colors["textColor"]}
+                                        style={{
+                                            alignSelf: 'center',
+                                            paddingLeft: 0.045 * Dimensions.get('screen').width > 20 ? 20 : 0.045 * Dimensions.get('screen').width
+                                        }}
+                                        onPress={() => { this.pass.focus() }}
+                                    />
+                                    <TextInput
+                                        selectionColor="#00000000"
+                                        keyboardType={'numeric'}
+                                        style={styles.pass}
+                                        value={this.state.password}
+                                        onChangeText={pass => {
+                                            if (pass.length <= 4)
+                                                this.setState({ password: pass });
+                                            if (pass.length === 4)
+                                                this.pass12()
+                                        }
+                                        }
+                                        ref={(input) => { this.pass = input; }}
+                                        keyboardAppearance={this.props.mode}
+                                        autoFocus={true}
+                                    />
+
+                                </Animated.View>
+
+                                <Text style={styles.modalText}>Please enter your current password</Text>
+
+                            </Card>
+                        </View> : null}
 
 
-                {this.state.enterNewPassword ?
-                    <View>
+                    {this.state.enterNewPassword ?
+                        <View>
 
-                        <View style={styles.titleView}>
-                            <TouchableHighlight activeOpacity={1} underlayColor={'#00000000'} onPress={this.cancel2}><Text style={styles.smallText}>Cancel</Text></TouchableHighlight>
-                            <Text style={styles.text}>Change Password</Text>
-                            <TouchableHighlight activeOpacity={1} underlayColor={'#00000000'} ><Text style={styles.smallText}>      </Text></TouchableHighlight>
-                        </View>
-                        <Card containerStyle={styles.card} >
+                            <View style={styles.titleView}>
+                                <TouchableHighlight activeOpacity={1} underlayColor={'#00000000'} onPress={this.cancel2}><Text style={styles.smallText}>Cancel</Text></TouchableHighlight>
+                                <Text style={styles.text}>Change Password</Text>
+                                <TouchableHighlight activeOpacity={1} underlayColor={'#00000000'} ><Text style={styles.smallText}>      </Text></TouchableHighlight>
+                            </View>
+                            <Card containerStyle={styles.card} >
 
-                            <Animated.View style={[{ flexDirection: "row", alignContent: 'center', justifyContent: 'center', }, { transform: [{ translateX: this.shakeAnimation }] }]}>
-                                <FontAwesome name={this.state.newPassword.length < 1 ? "circle-o" : "circle"} size={0.08 * Dimensions.get('screen').width > 30 ? 30 : 0.08 * Dimensions.get('screen').width} color={this.props.colors["textColor"]} style={{ alignSelf: 'center', }} onPress={() => { this.newPass.focus() }} />
-                                <FontAwesome name={this.state.newPassword.length < 2 ? "circle-o" : "circle"} size={0.08 * Dimensions.get('screen').width > 30 ? 30 : 0.08 * Dimensions.get('screen').width} color={this.props.colors["textColor"]} style={{ alignSelf: 'center', paddingLeft: 0.045 * Dimensions.get('screen').width > 20 ? 20 : 0.045 * Dimensions.get('screen').width }} onPress={() => { this.newPass.focus() }} />
-                                <FontAwesome name={this.state.newPassword.length < 3 ? "circle-o" : "circle"} size={0.08 * Dimensions.get('screen').width > 30 ? 30 : 0.08 * Dimensions.get('screen').width} color={this.props.colors["textColor"]} style={{ alignSelf: 'center', paddingLeft: 0.045 * Dimensions.get('screen').width > 20 ? 20 : 0.045 * Dimensions.get('screen').width }} onPress={() => { this.newPass.focus() }} />
-                                <FontAwesome name={this.state.newPassword.length < 4 ? "circle-o" : "circle"} size={0.08 * Dimensions.get('screen').width > 30 ? 30 : 0.08 * Dimensions.get('screen').width} color={this.props.colors["textColor"]} style={{ alignSelf: 'center', paddingLeft: 0.045 * Dimensions.get('screen').width > 20 ? 20 : 0.045 * Dimensions.get('screen').width }} onPress={() => { this.newPass.focus() }} />
-                                <TextInput selectionColor="#00000000" keyboardType={'number-pad'} style={styles.pass} value={this.state.newPassword} onChangeText={pass => { if (pass.length <= 4) this.setState({ newPassword: pass }); if (pass.length === 4) this.pass23(pass) }} ref={(input) => { this.newPass = input; }} keyboardAppearance={this.props.mode} autoFocus={true}>
-                                </TextInput>
-                            </Animated.View>
-                            <Text style={styles.modalText}>Enter your new password</Text>
-                        </Card>
-                    </View> : null}
+                                <Animated.View style={[{ flexDirection: "row", alignContent: 'center', justifyContent: 'center', }, { transform: [{ translateX: this.shakeAnimation }] }]}>
+                                    <FontAwesome name={this.state.newPassword.length < 1 ? "circle-o" : "circle"} size={0.08 * Dimensions.get('screen').width > 30 ? 30 : 0.08 * Dimensions.get('screen').width} color={this.props.colors["textColor"]} style={{ alignSelf: 'center', }} onPress={() => { this.newPass.focus() }} />
+                                    <FontAwesome name={this.state.newPassword.length < 2 ? "circle-o" : "circle"} size={0.08 * Dimensions.get('screen').width > 30 ? 30 : 0.08 * Dimensions.get('screen').width} color={this.props.colors["textColor"]} style={{ alignSelf: 'center', paddingLeft: 0.045 * Dimensions.get('screen').width > 20 ? 20 : 0.045 * Dimensions.get('screen').width }} onPress={() => { this.newPass.focus() }} />
+                                    <FontAwesome name={this.state.newPassword.length < 3 ? "circle-o" : "circle"} size={0.08 * Dimensions.get('screen').width > 30 ? 30 : 0.08 * Dimensions.get('screen').width} color={this.props.colors["textColor"]} style={{ alignSelf: 'center', paddingLeft: 0.045 * Dimensions.get('screen').width > 20 ? 20 : 0.045 * Dimensions.get('screen').width }} onPress={() => { this.newPass.focus() }} />
+                                    <FontAwesome name={this.state.newPassword.length < 4 ? "circle-o" : "circle"} size={0.08 * Dimensions.get('screen').width > 30 ? 30 : 0.08 * Dimensions.get('screen').width} color={this.props.colors["textColor"]} style={{ alignSelf: 'center', paddingLeft: 0.045 * Dimensions.get('screen').width > 20 ? 20 : 0.045 * Dimensions.get('screen').width }} onPress={() => { this.newPass.focus() }} />
+                                    <TextInput selectionColor="#00000000" keyboardType={'number-pad'} style={styles.pass} value={this.state.newPassword} onChangeText={pass => { if (pass.length <= 4) this.setState({ newPassword: pass }); if (pass.length === 4) this.pass23(pass) }} ref={(input) => { this.newPass = input; }} keyboardAppearance={this.props.mode} autoFocus={true}>
+                                    </TextInput>
+                                </Animated.View>
+                                <Text style={styles.modalText}>Enter your new password</Text>
+                            </Card>
+                        </View> : null}
 
-                {this.state.confirmNewPassword ?
-                    <View>
+                    {this.state.confirmNewPassword ?
+                        <View>
 
-                        <View style={styles.titleView}>
-                            <TouchableHighlight activeOpacity={1} underlayColor={'#00000000'} onPress={this.cancel3}><Text style={styles.smallText}>Cancel</Text></TouchableHighlight>
-                            <Text style={styles.text}>Change Password</Text>
-                            <TouchableHighlight activeOpacity={1} underlayColor={'#00000000'}  ><Text style={styles.smallText}>      </Text></TouchableHighlight>
-                        </View>
-                        <Card containerStyle={styles.card} >
+                            <View style={styles.titleView}>
+                                <TouchableHighlight activeOpacity={1} underlayColor={'#00000000'} onPress={this.cancel3}><Text style={styles.smallText}>Cancel</Text></TouchableHighlight>
+                                <Text style={styles.text}>Change Password</Text>
+                                <TouchableHighlight activeOpacity={1} underlayColor={'#00000000'}  ><Text style={styles.smallText}>      </Text></TouchableHighlight>
+                            </View>
+                            <Card containerStyle={styles.card} >
 
-                            <Animated.View style={[{ flexDirection: "row", alignContent: 'center', justifyContent: 'center', }, { transform: [{ translateX: this.shakeAnimation }] }]}>
-                                <FontAwesome name={this.state.newPassword2.length < 1 ? "circle-o" : "circle"} size={0.08 * Dimensions.get('screen').width > 30 ? 30 : 0.08 * Dimensions.get('screen').width} color={this.props.colors["textColor"]} style={{ alignSelf: 'center', }} onPress={() => { this.newPass2.focus() }} />
-                                <FontAwesome name={this.state.newPassword2.length < 2 ? "circle-o" : "circle"} size={0.08 * Dimensions.get('screen').width > 30 ? 30 : 0.08 * Dimensions.get('screen').width} color={this.props.colors["textColor"]} style={{ alignSelf: 'center', paddingLeft: 0.045 * Dimensions.get('screen').width > 20 ? 20 : 0.045 * Dimensions.get('screen').width }} onPress={() => { this.newPass2.focus() }} />
-                                <FontAwesome name={this.state.newPassword2.length < 3 ? "circle-o" : "circle"} size={0.08 * Dimensions.get('screen').width > 30 ? 30 : 0.08 * Dimensions.get('screen').width} color={this.props.colors["textColor"]} style={{ alignSelf: 'center', paddingLeft: 0.045 * Dimensions.get('screen').width > 20 ? 20 : 0.045 * Dimensions.get('screen').width }} onPress={() => { this.newPass2.focus() }} />
-                                <FontAwesome name={this.state.newPassword2.length < 4 ? "circle-o" : "circle"} size={0.08 * Dimensions.get('screen').width > 30 ? 30 : 0.08 * Dimensions.get('screen').width} color={this.props.colors["textColor"]} style={{ alignSelf: 'center', paddingLeft: 0.045 * Dimensions.get('screen').width > 20 ? 20 : 0.045 * Dimensions.get('screen').width }} onPress={() => { this.newPass2.focus() }} />
-                                <TextInput selectionColor="#00000000" keyboardType={'number-pad'} style={styles.pass} value={this.state.newPassword2} onChangeText={pass => { if (pass.length <= 4) this.setState({ newPassword2: pass }); if (pass.length === 4) this.confirm(pass) }} ref={(input) => { this.newPass2 = input; }} keyboardAppearance={this.props.mode} autoFocus={true}>
-                                </TextInput>
-                            </Animated.View>
-                            <Text style={styles.modalText}>Confirm your new password</Text>
-                        </Card>
-                    </View> : null}
+                                <Animated.View style={[{ flexDirection: "row", alignContent: 'center', justifyContent: 'center', }, { transform: [{ translateX: this.shakeAnimation }] }]}>
+                                    <FontAwesome name={this.state.newPassword2.length < 1 ? "circle-o" : "circle"} size={0.08 * Dimensions.get('screen').width > 30 ? 30 : 0.08 * Dimensions.get('screen').width} color={this.props.colors["textColor"]} style={{ alignSelf: 'center', }} onPress={() => { this.newPass2.focus() }} />
+                                    <FontAwesome name={this.state.newPassword2.length < 2 ? "circle-o" : "circle"} size={0.08 * Dimensions.get('screen').width > 30 ? 30 : 0.08 * Dimensions.get('screen').width} color={this.props.colors["textColor"]} style={{ alignSelf: 'center', paddingLeft: 0.045 * Dimensions.get('screen').width > 20 ? 20 : 0.045 * Dimensions.get('screen').width }} onPress={() => { this.newPass2.focus() }} />
+                                    <FontAwesome name={this.state.newPassword2.length < 3 ? "circle-o" : "circle"} size={0.08 * Dimensions.get('screen').width > 30 ? 30 : 0.08 * Dimensions.get('screen').width} color={this.props.colors["textColor"]} style={{ alignSelf: 'center', paddingLeft: 0.045 * Dimensions.get('screen').width > 20 ? 20 : 0.045 * Dimensions.get('screen').width }} onPress={() => { this.newPass2.focus() }} />
+                                    <FontAwesome name={this.state.newPassword2.length < 4 ? "circle-o" : "circle"} size={0.08 * Dimensions.get('screen').width > 30 ? 30 : 0.08 * Dimensions.get('screen').width} color={this.props.colors["textColor"]} style={{ alignSelf: 'center', paddingLeft: 0.045 * Dimensions.get('screen').width > 20 ? 20 : 0.045 * Dimensions.get('screen').width }} onPress={() => { this.newPass2.focus() }} />
+                                    <TextInput selectionColor="#00000000" keyboardType={'number-pad'} style={styles.pass} value={this.state.newPassword2} onChangeText={pass => { if (pass.length <= 4) this.setState({ newPassword2: pass }); if (pass.length === 4) this.confirm(pass) }} ref={(input) => { this.newPass2 = input; }} keyboardAppearance={this.props.mode} autoFocus={true}>
+                                    </TextInput>
+                                </Animated.View>
+                                <Text style={styles.modalText}>Confirm your new password</Text>
+                            </Card>
+                        </View> : null}
 
-                <TouchableHighlight activeOpacity={1} underlayColor={'#00000000'} style={{ backgroundColor: 'transparent', height: 0.5 * Dimensions.get('screen').height }} onPress={() => this.props.closeModal()} activeOpacity={1}>
-                    <View />
-                </TouchableHighlight>
-
+                    <TouchableHighlight activeOpacity={1} underlayColor={'#00000000'} style={{ backgroundColor: 'transparent', height: 0.5 * Dimensions.get('screen').height }} onPress={() => this.props.closeModal()} activeOpacity={1}>
+                        <View />
+                    </TouchableHighlight>
+                </View>
             </Modal>)
     }
 }
