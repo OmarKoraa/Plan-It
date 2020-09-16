@@ -10,9 +10,9 @@ import { AppLoading } from 'expo'
 import { Asset } from 'expo-asset';
 import * as FileSystem from 'expo-file-system'
 import AnimatedSplash from "react-native-animated-splash-screen";
+import { todayObjects } from './assets/constants/todayObjects'
 
-
-
+import * as Notifications from 'expo-notifications';
 
 export let COLORS = {}
 export let THEME = 'Galaxy'
@@ -34,27 +34,61 @@ class App extends React.Component {
       fontFamily: Platform.OS === 'ios' ? "PingFangSC-Semibold" : "sans-serif-medium",
       frequentlies: [],
       theme: 'Galaxy',
-      updateTheme: false,
-      updateMode: false,
       updateFrequentliesToday: false,
+      todayOrder: todayObjects,
+      updatedDay: '',
+      updateDay: false,
+      trackers: []
     }
+
   }
 
   async componentDidUpdate() {
-    if (this.state.updateTheme) {
-      this.setState({ updateTheme: false })
-    }
-    if (this.state.updateMode) {
-      this.setState({ updateMode: false })
-    }
     COLORS = this.state.colors
     THEME = this.state.theme
     MODE = this.state.mode
+  }
 
+  async manageNotifications() {
+
+    await Notifications.requestPermissionsAsync({
+      ios: {
+        allowAlert: true,
+        allowBadge: true,
+        allowSound: true,
+        allowAnnouncements: true,
+      },
+    });
+    await Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: true,
+      }),
+    });
+
+    let firstTime = await AsyncStorage.getItem('firstTime')
+    if (!firstTime) {
+      await AsyncStorage.setItem('firstTime', 'true')
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: "Your daily quote is ready",
+          body: "Check it now!",
+          sound: true
+        },
+        identifier: "Quote",
+        trigger: {
+          type: 'daily',
+          hour: 10,
+          minute: 0
+        }
+      })
+    }
   }
 
   async componentDidMount() {
     await this._cacheResourcesAsync()
+    this.manageNotifications()
     let frequentlies = await AsyncStorage.getItem('frequentlies')
     if (!frequentlies) {
       frequentlies = []
@@ -63,6 +97,15 @@ class App extends React.Component {
       frequentlies = JSON.parse(frequentlies)
 
     this.setState({ frequentlies: frequentlies })
+
+    let trackers = await AsyncStorage.getItem('trackers')
+    if (!trackers) {
+      trackers = []
+      await AsyncStorage.setItem('trackers', JSON.stringify([]))
+    } else {
+      trackers = JSON.parse(trackers)
+    }
+    this.setState({ trackers: trackers })
 
     let theme = await AsyncStorage.getItem('theme')
     if (!theme) {
@@ -87,18 +130,36 @@ class App extends React.Component {
         'backColor': '#000000',
         'textColor': '#ffffff',
         'themeColor': theme === 'Galaxy' ? '#800080' : theme === 'Nature' ? '#53833b' : theme === 'Sea' ? '#006994' : theme === 'Fire' ? '#ce2029' : theme === 'Sunflower' ? '#E8DE2A' : '#ffffff',
-        'backColorModal': '#555555',
+        'backColorModal': '#333333',
         'greyishBackColor': '#111111'
       }
       await AsyncStorage.setItem('mode', 'dark')
       this.setState({ mode: 'dark', colors: colors })
     }
 
+    let todayOrder = await AsyncStorage.getItem('todayOrder')
+
+
+    if (!todayOrder) {
+      todayOrder = todayObjects
+      await AsyncStorage.setItem('todayOrder', JSON.stringify(todayOrder))
+    }
+    else {
+      todayOrder = JSON.parse(todayOrder)
+      if (todayOrder.length !== todayObjects.length)
+        todayOrder = todayObjects
+      
+    }
+
+    this.setState({ todayOrder: todayOrder })
+
+
+
     let imagesInfo = await FileSystem.getInfoAsync(FileSystem.documentDirectory + "images/")
     if (!imagesInfo.exists) {
       await FileSystem.makeDirectoryAsync(FileSystem.documentDirectory + 'images/')
     }
-    setTimeout(()=>{this.setState({isReady:true})},3000)
+    setTimeout(() => { this.setState({ isReady: true }) }, 2000)
 
   }
 
@@ -111,14 +172,22 @@ class App extends React.Component {
     const screenProps = {
       colors: this.state.colors,
       mode: this.state.mode,
-      setMode: (mode, colors) => { this.setState({ mode: mode, colors: colors, updateMode: true }) },
+      setMode: (mode, colors) => { this.setState({ mode: mode, colors: colors }) },
       fontFamily: this.state.fontFamily,
       frequentlies: this.state.frequentlies,
       updateFrequentliesToday: this.state.updateFrequentliesToday,
       todayFrequentliesUpdated: () => { this.setState({ updateFrequentliesToday: false }) },
       updateFrequentlies: (frequentlies) => { this.setState({ frequentlies: frequentlies, updateFrequentliesToday: true }) },
       theme: this.state.theme,
-      setTheme: (theme, colors) => { this.setState({ colors: colors, theme: theme, updateTheme: true }) }
+      setTheme: (theme, colors) => { this.setState({ colors: colors, theme: theme }) },
+      todayOrder: this.state.todayOrder,
+      changeTodayOrder: (todayOrder) => { this.setState({ todayOrder: todayOrder }) },
+      updateDay: this.state.updateDay,
+      updatedDay: this.state.updatedDay,
+      setUpdatedDay: (day, state) => { this.setState({ updatedDay: day, updateDay: state }) },
+      trackers: this.state.trackers,
+      updateTrackers: (trackers) => { this.setState({ trackers: trackers }) }
+
     }
     return (
 

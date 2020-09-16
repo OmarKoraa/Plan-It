@@ -10,6 +10,8 @@ import { categories } from '../assets/constants/categories'
 import { ProgressChart } from 'react-native-chart-kit'
 import MonthInYear from '../components/MonthInYear'
 import * as Animatable from 'react-native-animatable';
+import GestureRecognizer, { swipeDirections } from 'react-native-swipe-gestures';
+
 
 
 class YearScreen extends React.Component {
@@ -24,7 +26,7 @@ class YearScreen extends React.Component {
 
     zoomIn = ()=>this.view.zoomIn(200)
 
-    fadeOut = (month)=>this.view.fadeOutDownBig(400).then(()=>this.props.selectMonth(month))
+    fadeOut = (month)=>this.view.fadeOutDownBig(200).then(()=>this.props.selectMonth(month,'fade'))
 
 
     componentDidMount=()=>{
@@ -80,7 +82,18 @@ class YearScreen extends React.Component {
                 flexWrap: 'wrap',
             }
         })
+
+        const config = {
+            velocityThreshold: 0.3,
+            directionalOffsetThreshold: 80
+          };
+
         return (
+            <GestureRecognizer
+            onSwipeLeft={(state) => this.props.nextYear()}
+            onSwipeRight={(state) =>this.props.previousYear()}
+            config={config}
+        >
             <Animatable.View style={styles.fullscreen} ref={this.handleViewRef}>
                 <View style={styles.titleView}>
                     <Text style={styles.titleText}>{this.props.year}</Text>
@@ -98,6 +111,7 @@ class YearScreen extends React.Component {
                     </View>
                 </ScrollView>
             </Animatable.View>
+            </GestureRecognizer>
         )
     }
 }

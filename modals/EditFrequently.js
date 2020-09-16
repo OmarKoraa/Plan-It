@@ -1,13 +1,14 @@
 import React from "react";
-import { View, TextInput, StyleSheet, Dimensions, Picker, Animated, Keyboard, TouchableWithoutFeedback, AsyncStorage, Text, ImageBackground, Image, Modal, ScrollView, TouchableHighlight } from 'react-native'
-import { Button, Icon, Card, Divider } from 'react-native-elements'
-import { FontAwesome, AntDesign } from '@expo/vector-icons'
+import { View, TextInput, StyleSheet, Dimensions, Picker, Animated, Keyboard, TouchableWithoutFeedback, AsyncStorage, Text, ImageBackground, Image, Modal, ScrollView, TouchableHighlight, TouchableOpacity } from 'react-native'
+import { Button, Icon, Card, Divider, colors } from 'react-native-elements'
+import { FontAwesome, AntDesign, FontAwesome5 } from '@expo/vector-icons'
 import { categories } from '../assets/constants/categories'
 import SelectMultiple from 'react-native-select-multiple'
 import { YellowBox } from 'react-native'
 import * as Random from 'expo-random';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
-
+import { icons } from '../assets/constants/icons'
+import { iconsColors } from '../assets/constants/iconsColors'
 
 YellowBox.ignoreWarnings([
     'VirtualizedLists should never be nested', // TODO: Remove when fixed
@@ -27,6 +28,11 @@ class EditFrequentlyModal extends React.Component {
             yearlyMonth: 'January',
             subtasks: [],
             justOpened: true,
+            icon: icons[0],
+            iconColor: iconsColors[0],
+            priority: 1,
+            iconsModalVisible: false,
+            iconsColorsModalVisible: false
         }
         this.titleAnimation = new Animated.Value(0)
         this.typeAnimation = new Animated.Value(0)
@@ -46,6 +52,9 @@ class EditFrequentlyModal extends React.Component {
                 yearlyDay: this.props.selectedFrequently.yearlyDay,
                 yearlyMonth: this.props.selectedFrequently.yearlyMonth,
                 subtasks: this.props.selectedFrequently.subtasks,
+                icon: this.props.selectedFrequently.icon ? this.props.selectedFrequently.icon : icons[0],
+                iconColor: this.props.selectedFrequently.iconColor ? this.props.selectedFrequently.iconColor : iconsColors[0],
+                priority: this.props.selectedFrequently.priority ? this.props.selectedFrequently.priority : 1,
                 justOpened: false
             })
         }
@@ -99,6 +108,8 @@ class EditFrequentlyModal extends React.Component {
             yearlyDay: '1',
             yearlyMonth: 'January',
             subtasks: [],
+            iconColor: iconsColors[0],
+            icon: icons[0],
             justOpened: true
         })
 
@@ -144,7 +155,10 @@ class EditFrequentlyModal extends React.Component {
             monthlyDay: this.state.type === 'Monthly' ? this.state.monthlyDay : '1',
             yearlyDay: this.state.type === 'Yearly' ? this.state.yearlyDay : '1',
             yearlyMonth: this.state.type === 'Yearly' ? this.state.yearlyMonth : 'January',
-            subtasks: this.state.subtasks
+            subtasks: this.state.subtasks,
+            icon: this.state.icon,
+            iconColor: this.state.iconColor,
+            priority: this.state.priority
         }
         for (var i = 0; i < frequentlies.length; i++) {
             if (this.equalIDs(frequentlies[i].id, frequently.id)) {
@@ -153,7 +167,17 @@ class EditFrequentlyModal extends React.Component {
             }
         }
 
+        frequentlies = frequentlies.sort(
+            (a, b) => {
+                if (!a.priority)
+                    a['priority'] = 1
+                if (!b.priority)
+                    b['priority'] = 1
+                return -(a.priority - b.priority)
+            }
+        )
         frequentlies = JSON.stringify(frequentlies)
+
         await AsyncStorage.setItem('frequentlies', frequentlies)
         frequentlies = JSON.parse(frequentlies)
         this.props.updateFrequentlies(frequentlies)
@@ -169,7 +193,10 @@ class EditFrequentlyModal extends React.Component {
             yearlyDay: '1',
             yearlyMonth: 'January',
             subtasks: [],
-            justOpened: true
+            justOpened: true,
+            icon: icons[0],
+            iconColor: iconsColors[0],
+            priority: 1
         })
 
     }
@@ -235,6 +262,22 @@ class EditFrequentlyModal extends React.Component {
 
 
     render() {
+        let name = this.props.theme === 'Nature' ?
+            'leaf'
+            :
+            this.props.theme === 'Sea' ?
+                'water'
+                :
+                this.props.theme === 'Focus' ?
+                    'yin-yang'
+                    :
+                    this.props.theme === 'Galaxy' ?
+                        'galactic-senate'
+                        :
+                        this.props.theme === 'Sunflower' ?
+                            'sun'
+                            :
+                            'fire'
         const styles = StyleSheet.create({
             card: {
 
@@ -330,6 +373,36 @@ class EditFrequentlyModal extends React.Component {
                 color: this.props.colors["textColor"] + '88',
                 paddingLeft: 0.018 * Dimensions.get('screen').width > 12 ? 12 : 0.018 * Dimensions.get('screen').width,
                 marginBottom: 0.018 * Dimensions.get('screen').height > 12 ? 12 : 0.018 * Dimensions.get('screen').height
+            },
+            iconHolder: {
+                borderRadius: 5,
+                backgroundColor: this.props.mode === 'dark' ? '#3c3c3c' : '#c0c0c0'
+            },
+            iconsCard: {
+                width: 0.8 * Dimensions.get('screen').width,
+                backgroundColor: this.props.colors["backColorModal"],
+                alignSelf: 'center',
+                borderTopWidth: 0,
+                borderColor: this.props.colors["textColor"],
+                borderWidth: 2,
+                borderBottomLeftRadius: 25,
+                borderBottomRightRadius: 25,
+                maxHeight: 0.6 * Dimensions.get('screen').height,
+                minHeight: 0.6 * Dimensions.get('screen').height,
+
+                marginTop: (1 / 80.0) * Dimensions.get('screen').height > 8 ? 8 : (1 / 80.0) * Dimensions.get('screen').height,
+                paddingTop: (1 / 80.0) * Dimensions.get('screen').height > 7 ? 7 : (1 / 80.0) * Dimensions.get('screen').height
+
+            },
+            iconHolderList: {
+                paddingHorizontal: 0.04 * Dimensions.get('screen').width
+            },
+            priorityText: {
+                fontFamily: this.props.fontFamily,
+                paddingTop: 0.01 * Dimensions.get('screen').height,
+                fontSize: 0.02 * Dimensions.get('screen').height,
+                color: this.props.colors.textColor,
+                textAlign: 'center'
             }
         })
 
@@ -355,8 +428,70 @@ class EditFrequentlyModal extends React.Component {
                             <TextInput value={this.state.title} placeholder={'A title for your Frequently'} style={styles.textInput} onChangeText={text => this.setState({ title: text })} placeholderTextColor={'#888888'} keyboardAppearance={this.props.mode} />
                         </Animated.View>
 
+                        <View style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-around',
+                            paddingBottom: 0.025 * Dimensions.get('screen').height
+                        }}>
+                            <View>
+                                <Text style={styles.text}>Icon</Text>
+                                <TouchableOpacity style={styles.iconHolder} onPress={() => this.setState({ iconsModalVisible: true })}>
+
+                                    {
+                                        this.state.icon.type === "FontAwesome" ?
+                                            <FontAwesome name={this.state.icon.name} size={this.state.icon.size * Dimensions.get('screen').height} style={{ alignSelf: 'center', padding: this.state.icon.padding * Dimensions.get('screen').height }} color={this.state.iconColor} />
+                                            :
+                                            this.state.icon.type === 'FontAwesome5' ?
+                                                <FontAwesome5 name={this.state.icon.name} size={this.state.icon.size * Dimensions.get('screen').height} style={{ alignSelf: 'center', padding: this.state.icon.padding * Dimensions.get('screen').height }} color={this.state.iconColor} />
+                                                :
+                                                null
+                                    }
+                                </TouchableOpacity>
+                            </View>
+                            <View>
+                                <Text style={styles.text}>Color</Text>
+                                <TouchableOpacity style={styles.iconHolder} onPress={() => this.setState({ iconsColorsModalVisible: true })}>
+
+
+                                    <FontAwesome name={'circle'} size={0.03 * Dimensions.get('screen').height} style={{ alignSelf: 'center', padding: 0.01 * Dimensions.get('screen').height }} color={this.state.iconColor} />
+
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+
                         <Text style={styles.text}>Description</Text>
                         <TextInput value={this.state.description} placeholder={'A little description'} style={[styles.textInput, { height: 0.14 * Dimensions.get('screen').height > 120 ? 120 : 0.14 * Dimensions.get('screen').height }]} onChangeText={text => this.setState({ description: text })} placeholderTextColor={'#888888'} keyboardAppearance={this.props.mode} multiline={true}></TextInput>
+
+                        <Text style={styles.text}>Priority</Text>
+
+                        <View style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-around',
+                            paddingBottom: 0.025 * Dimensions.get('screen').height,
+                            flex: 1,
+                            alignContent: 'center'
+                        }}>
+                            <TouchableOpacity onPress={() => { this.setState({ priority: 1 }) }}>
+                                <FontAwesome5 name={name} size={0.02 * Dimensions.get('screen').height} color={this.state.priority === 1 ? this.props.colors.themeColor : '#888888'} />
+                                <Text style={styles.priorityText}>1</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => { this.setState({ priority: 2 }) }}>
+                                <FontAwesome5 name={name} size={0.03 * Dimensions.get('screen').height} color={this.state.priority === 2 ? this.props.colors.themeColor : '#888888'} />
+                                <Text style={styles.priorityText}>2</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => { this.setState({ priority: 3 }) }}>
+                                <FontAwesome5 name={name} size={0.04 * Dimensions.get('screen').height} color={this.state.priority === 3 ? this.props.colors.themeColor : '#888888'} />
+                                <Text style={styles.priorityText}>3</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => { this.setState({ priority: 4 }) }}>
+                                <FontAwesome5 name={name} size={0.05 * Dimensions.get('screen').height} color={this.state.priority === 4 ? this.props.colors.themeColor : '#888888'} />
+                                <Text style={styles.priorityText}>4</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => { this.setState({ priority: 5 }) }}>
+                                <FontAwesome5 name={name} size={0.06 * Dimensions.get('screen').height} color={this.state.priority === 5 ? this.props.colors.themeColor : '#888888'} />
+                                <Text style={styles.priorityText}>5</Text>
+                            </TouchableOpacity>
+                        </View>
 
                         <Text style={styles.text}>Subtasks</Text>
 
@@ -427,12 +562,103 @@ class EditFrequentlyModal extends React.Component {
                                     </Picker>
                                 </View>
                             </View> : null}
+                        <Modal
+                            animationType="slide"
+                            transparent={true}
+                            visible={this.state.iconsModalVisible}
+                        >
+                            <View style={{ backgroundColor: '#000000aa', width: Dimensions.get('screen').width, minHeight: Dimensions.get('screen').height }}>
 
+                                <TouchableHighlight activeOpacity={1} underlayColor={'#00000000'} style={{ backgroundColor: 'transparent', height: 0.22 * Dimensions.get('screen').height }} onPress={() => this.setState({ iconsModalVisible: false })} >
+                                    <View />
+                                </TouchableHighlight>
+
+                                <View style={[styles.titleView, { marginTop: 0, width: 0.8 * Dimensions.get('screen').width }]}>
+                                    <TouchableHighlight onPress={() => this.setState({ iconsModalVisible: false })} activeOpacity={1} underlayColor={'#00000000'} ><Text style={styles.smallText}>Close</Text></TouchableHighlight>
+                                    <Text style={styles.titleText}>Select Icon</Text>
+                                    <TouchableHighlight activeOpacity={1} underlayColor={'#00000000'} ><Text style={styles.smallText}>{"    "}</Text></TouchableHighlight>
+                                </View>
+                                <Card containerStyle={styles.iconsCard}>
+                                    <ScrollView>
+                                        <View style={{
+                                            justifyContent: 'space-evenly',
+                                            flexDirection: "row",
+                                            flexWrap: 'wrap'
+                                        }}>
+
+                                            {icons.map((icon, index) => {
+                                                if (icon.type === 'FontAwesome')
+                                                    return (
+                                                        <TouchableOpacity key={index} style={styles.iconHolderList} onPress={() => this.setState({ icon: icon, iconsModalVisible: false })}>
+
+
+                                                            <FontAwesome name={icon.name} size={1.3 * icon.size * Dimensions.get('screen').height} style={{ alignSelf: 'center', paddingVertical: 0.015 * Dimensions.get('screen').height, }} color={icon.color} />
+
+                                                        </TouchableOpacity>
+                                                    )
+                                                if (icon.type === 'FontAwesome5')
+                                                    return (
+                                                        <TouchableOpacity key={index} style={styles.iconHolderList} onPress={() => this.setState({ icon: icon, iconsModalVisible: false })}>
+
+
+                                                            <FontAwesome5 name={icon.name} size={1.3 * icon.size * Dimensions.get('screen').height} style={{ alignSelf: 'center', paddingVertical: 0.015 * Dimensions.get('screen').height, }} color={icon.color} />
+
+                                                        </TouchableOpacity>
+                                                    )
+                                            })}
+                                        </View>
+                                    </ScrollView>
+                                </Card>
+                            </View>
+                        </Modal>
+
+                        <Modal
+                            animationType="slide"
+                            transparent={true}
+                            visible={this.state.iconsColorsModalVisible}
+                        >
+                            <View style={{ backgroundColor: '#000000aa', width: Dimensions.get('screen').width, minHeight: Dimensions.get('screen').height }}>
+
+                                <TouchableHighlight activeOpacity={1} underlayColor={'#00000000'} style={{ backgroundColor: 'transparent', height: 0.22 * Dimensions.get('screen').height }} onPress={() => this.setState({ iconsColorsModalVisible: false })} >
+                                    <View />
+                                </TouchableHighlight>
+
+                                <View style={[styles.titleView, { marginTop: 0, width: 0.8 * Dimensions.get('screen').width }]}>
+                                    <TouchableHighlight onPress={() => this.setState({ iconsColorsModalVisible: false })} activeOpacity={1} underlayColor={'#00000000'} ><Text style={styles.smallText}>Close</Text></TouchableHighlight>
+                                    <Text style={styles.titleText}>Select Icon</Text>
+                                    <TouchableHighlight activeOpacity={1} underlayColor={'#00000000'} ><Text style={styles.smallText}>{"    "}</Text></TouchableHighlight>
+                                </View>
+                                <Card containerStyle={styles.iconsCard}>
+                                    <ScrollView>
+                                        <View style={{
+                                            justifyContent: 'space-evenly',
+                                            flexDirection: "row",
+                                            flexWrap: 'wrap'
+                                        }}>
+
+                                            {iconsColors.map((color, index) => {
+                                                return (
+                                                    <TouchableOpacity key={color} style={styles.iconHolderList} onPress={() => this.setState({ iconColor: color, iconsColorsModalVisible: false })}>
+
+
+                                                        <FontAwesome name={'circle'} size={0.05 * Dimensions.get('screen').height} style={{ alignSelf: 'center', paddingVertical: 0.015 * Dimensions.get('screen').height, }} color={color} />
+
+                                                    </TouchableOpacity>
+                                                )
+
+                                            })}
+                                        </View>
+                                    </ScrollView>
+                                </Card>
+                            </View>
+                        </Modal>
 
 
 
                         <View style={{ height: 0.08 * Dimensions.get('screen').height > 60 ? 60 : 0.08 * Dimensions.get('screen').height }} />
                     </KeyboardAwareScrollView>
+
+
                 </Card>
             </Modal>
         )

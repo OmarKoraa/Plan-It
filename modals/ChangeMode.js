@@ -34,7 +34,25 @@ class ChangeModeModal extends React.Component {
         let colors = {
             'backColor': mode === 'dark' ? '#000000' : '#ffffff',
             'textColor': mode === 'dark' ? '#ffffff' : '#000000',
-            'themeColor': this.props.theme === 'Galaxy'?'#800080':this.props.theme === 'Nature'? '#53833b':this.props.theme==='Sea'? '#006994':this.props.theme==='Fire'? '#ce2029':this.props.theme==='Sunflower'?'#E8DE2A' :mode==='dark'?'#ffffff':'#000000',
+            'themeColor': this.props.theme === 'Galaxy' ?
+                '#800080'
+                :
+                this.props.theme === 'Nature' ?
+                    '#53833b'
+                    :
+                    this.props.theme === 'Sea' ?
+                        '#006994'
+                        :
+                        this.props.theme === 'Fire' ?
+                            '#ce2029'
+                            :
+                            this.props.theme === 'Sunflower' ?
+                                '#E8DE2A'
+                                :
+                                mode === 'dark' ?
+                                    '#ffffff'
+                                    :
+                                    '#000000',
             'backColorModal': mode === 'dark' ? '#333333' : "#cccccc",
             'greyishBackColor': mode === 'dark' ? '#111111' : '#eeeeee'
         }
@@ -65,7 +83,7 @@ class ChangeModeModal extends React.Component {
             text: {
                 fontSize: 0.025 * Dimensions.get('screen').height,
                 borderColor: this.props.colors["textColor"],
-                color: this.props.theme==='Focus'?this.props.colors['backColor']:'white',
+                color: this.props.theme === 'Focus' ? this.props.colors['backColor'] : 'white',
                 fontFamily: this.props.fontFamily,
                 paddingTop: (1 / 80.0) * Dimensions.get('screen').height > 7 ? 7 : (1 / 80.0) * Dimensions.get('screen').height,
             },
@@ -74,7 +92,7 @@ class ChangeModeModal extends React.Component {
                 fontSize: 0.018 * Dimensions.get('screen').height,
                 fontFamily: this.props.fontFamily,
                 paddingTop: 0.018 * Dimensions.get('screen').height > 12 ? 12 : 0.018 * Dimensions.get('screen').height,
-                color: this.props.theme==='Focus'?this.props.colors['backColor']:'white',
+                color: this.props.theme === 'Focus' ? this.props.colors['backColor'] : 'white',
             },
             titleView: {
                 flexDirection: "row",
@@ -110,43 +128,132 @@ class ChangeModeModal extends React.Component {
                 visible={this.props.modalVisible}
 
             >
-                <TouchableHighlight style={{ height: 0.23 * Dimensions.get('screen').height }} onPress={() => this.props.closeModal()} activeOpacity={1} underlayColor={'#00000000'}>
-                    <View />
-                </TouchableHighlight>
+                <View style={{ backgroundColor: '#000000aa', width: Dimensions.get('screen').width, minHeight: Dimensions.get('screen').height }}>
 
-
-                <View style={styles.titleView}>
-                    <TouchableHighlight onPress={this.props.closeModal} activeOpacity={1} underlayColor={'#00000000'}><Text style={styles.smallText}>Close</Text></TouchableHighlight>
-                    <Text style={styles.text}>Change Mode</Text>
-                    <TouchableHighlight activeOpacity={1} underlayColor={'#00000000'}><Text style={styles.smallText} >{"       "}</Text></TouchableHighlight>
-                </View>
-                <View style={styles.card}>
-
-
-                    <TouchableHighlight onPress={() => { this.modeChange('light') }} activeOpacity={1} underlayColor={'#00000000'} >
-                        <View>
-
-                            <Image source={Light} style={{ width: 0.2 * Dimensions.get('screen').width, height: 0.21 * Dimensions.get('screen').height, resizeMode: 'contain', paddingTop: 0.04 * Dimensions.get('screen').height }} />
-                            <Text style={styles.modalText}>Light</Text>
-                            {this.state.light ? <AntDesign name={'checkcircle'} color={this.props.colors["themeColor"]} size={24} style={{ alignSelf: 'center', paddingBottom: (1 / 22.0) * Dimensions.get('screen').height > 15 ? 15 : (1 / 22.0) * Dimensions.get('screen').height }} /> :
-                                <Entypo name={'circle'} color={this.props.colors["themeColor"]} size={(1 / 16.0) * Dimensions.get('screen').height > 25 ? 25 : (1 / 16.0) * Dimensions.get('screen').height} style={{ alignSelf: 'center', paddingBottom: 15 }} />}
-                        </View>
+                    <TouchableHighlight
+                        style={{ height: 0.23 * Dimensions.get('screen').height }}
+                        onPress={() => this.props.closeModal()}
+                        activeOpacity={1}
+                        underlayColor={'#00000000'}
+                    >
+                        <View />
                     </TouchableHighlight>
 
-                    <TouchableHighlight onPress={() => { this.modeChange('dark') }} activeOpacity={1} underlayColor={'#00000000'} >
-                        <View>
 
-                            <Image source={Dark} style={{ width: 0.2 * Dimensions.get('screen').width, height: 0.21 * Dimensions.get('screen').height, resizeMode: 'contain', paddingTop: 0.04 * Dimensions.get('screen').height }} />
-                            <Text style={styles.modalText}>Dark</Text>
-                            {this.state.dark ? <AntDesign name={'checkcircle'} color={this.props.colors["themeColor"]} size={24} style={{ alignSelf: 'center', paddingBottom: (1 / 22.0) * Dimensions.get('screen').height > 15 ? 15 : (1 / 22.0) * Dimensions.get('screen').height }} /> :
-                                <Entypo name={'circle'} color={this.props.colors["themeColor"]} size={(1 / 16.0) * Dimensions.get('screen').height > 25 ? 25 : (1 / 16.0) * Dimensions.get('screen').height} style={{ alignSelf: 'center', paddingBottom: 15 }} />}
-                        </View>
+                    <View style={styles.titleView}>
+                        <TouchableHighlight
+                            onPress={this.props.closeModal}
+                            activeOpacity={1}
+                            underlayColor={'#00000000'}
+                        >
+                            <Text style={styles.smallText}>
+                                Close
+                             </Text>
+                        </TouchableHighlight>
+
+                        <Text style={styles.text}>Change Mode</Text>
+
+                        <TouchableHighlight
+                            activeOpacity={1}
+                            underlayColor={'#00000000'}
+                        >
+                            <Text style={styles.smallText} >
+                                {"       "}
+                            </Text>
+                        </TouchableHighlight>
+                    </View>
+                    <View style={styles.card}>
+
+
+                        <TouchableHighlight
+                            onPress={() => { this.modeChange('light') }}
+                            activeOpacity={1}
+                            underlayColor={'#00000000'}
+                        >
+                            <View>
+
+                                <Image
+                                    source={Light}
+                                    style={{
+                                        width: 0.2 * Dimensions.get('screen').width,
+                                        height: 0.21 * Dimensions.get('screen').height,
+                                        resizeMode: 'contain',
+                                        paddingTop: 0.04 * Dimensions.get('screen').height
+                                    }}
+                                />
+                                <Text style={styles.modalText}>Light</Text>
+
+                                {this.state.light ?
+                                    <AntDesign
+                                        name={'checkcircle'}
+                                        color={this.props.colors["themeColor"]}
+                                        size={24}
+                                        style={{
+                                            alignSelf: 'center',
+                                            paddingBottom: (1 / 22.0) * Dimensions.get('screen').height > 15 ? 15 : (1 / 22.0) * Dimensions.get('screen').height
+                                        }}
+                                    />
+                                    :
+                                    <Entypo
+                                        name={'circle'}
+                                        color={this.props.colors["themeColor"]}
+                                        size={(1 / 16.0) * Dimensions.get('screen').height > 25 ? 25 : (1 / 16.0) * Dimensions.get('screen').height}
+                                        style={{ alignSelf: 'center', paddingBottom: 15 }}
+                                    />
+                                }
+                            </View>
+                        </TouchableHighlight>
+
+                        <TouchableHighlight
+                            onPress={() => { this.modeChange('dark') }}
+                            activeOpacity={1}
+                            underlayColor={'#00000000'}
+                        >
+                            <View>
+
+                                <Image
+                                    source={Dark}
+                                    style={{
+                                        width: 0.2 * Dimensions.get('screen').width,
+                                        height: 0.21 * Dimensions.get('screen').height,
+                                        resizeMode: 'contain',
+                                        paddingTop: 0.04 * Dimensions.get('screen').height
+                                    }}
+                                />
+                                <Text style={styles.modalText}>Dark</Text>
+                                {this.state.dark ?
+                                    <AntDesign
+                                        name={'checkcircle'}
+                                        color={this.props.colors["themeColor"]}
+                                        size={24}
+                                        style={{
+                                            alignSelf: 'center',
+                                            paddingBottom: (1 / 22.0) * Dimensions.get('screen').height > 15 ? 15 : (1 / 22.0) * Dimensions.get('screen').height
+                                        }}
+                                    />
+                                    :
+                                    <Entypo
+                                        name={'circle'}
+                                        color={this.props.colors["themeColor"]}
+                                        size={(1 / 16.0) * Dimensions.get('screen').height > 25 ? 25 : (1 / 16.0) * Dimensions.get('screen').height}
+                                        style={{
+                                            alignSelf: 'center',
+                                            paddingBottom: 15
+                                        }}
+                                    />
+                                }
+                            </View>
+                        </TouchableHighlight>
+                    </View>
+                    <TouchableHighlight
+                        style={{ height: 0.5 * Dimensions.get('screen').height }}
+                        onPress={() => this.props.closeModal()}
+                        activeOpacity={1}
+                        underlayColor={'#00000000'}
+                    >
+                        <View />
                     </TouchableHighlight>
                 </View>
-                <TouchableHighlight style={{ height: 0.5 * Dimensions.get('screen').height }} onPress={() => this.props.closeModal()} activeOpacity={1} underlayColor={'#00000000'}>
-                    <View />
-                </TouchableHighlight>
-
             </Modal>
 
         )
